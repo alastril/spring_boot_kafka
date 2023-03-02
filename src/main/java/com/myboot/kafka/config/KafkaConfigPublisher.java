@@ -8,6 +8,7 @@ import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.kafka.core.*;
 import org.springframework.kafka.support.serializer.JsonSerializer;
 
@@ -15,18 +16,19 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Configuration
-//@Profile("Publisher")
 public class KafkaConfigPublisher {
 
     @Autowired
     KafkaAdmin kafkaAdmin;
 
     @Bean
+    @Profile("Publisher")
     public NewTopic topicForSending() {
         return new NewTopic(Constants.TOPIC_FOR_SENDING, 1, (short) 1);
     }
 
     @Bean
+    @Profile("Publisher")
     public NewTopic topicForReply() {
         return new NewTopic(Constants.REPLY_TOPIC_FOR_SENDING, 1, (short) 1);
     }

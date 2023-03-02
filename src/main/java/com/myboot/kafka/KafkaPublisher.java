@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 import java.util.concurrent.CompletableFuture;
 
 @Component
-//@Profile("Publisher")
+@Profile("Publisher")
 public class KafkaPublisher {
 
     @Autowired

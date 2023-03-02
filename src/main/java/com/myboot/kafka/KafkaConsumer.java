@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 
 
 @Component
-//@Profile("Consumer")
+@Profile("Consumer")
 public class KafkaConsumer {
 
     private static final Logger LOGGER = LogManager.getLogger(KafkaConsumer.class);

@@ -1,0 +1,14 @@
+Application for testing SpringBoot with kafka.
+
+Run Publisher: with VM option -Dspring.profiles.active=Publisher
+Run Consumer: with VM option -Dspring.profiles.active=Consumer
+
+API for sending message localhost:8081/kafka/send
+body example:
+{
+    "Mess":"test",
+    "Obj": {
+        "id":1,
+        "name":"objName"
+    }
+}
