@@ -3,7 +3,7 @@
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT">
             <PatternLayout disableAnsi="false"
-                    pattern="%style{%d{ISO8601}}{grey} %highlight{%-5level }{TRACE=#D48383}[%style{%t}{bright,blue}] %style{%C{1.}}{bright,yellow}: %highlight{%msg%n%throwable}{ ERROR=red bold, INFO=normal, TRACE=#D48383}" />
+                    pattern="%style{%d{ISO8601}}{grey} %highlight{%-5level }{TRACE=#D48383}[%style{%t}{bright,blue}] %style{%C{1.}}{yellow}(%style{%L}{cyan}): %highlight{%msg%n%throwable}{ ERROR=red bold, INFO=normal, TRACE=#D48383}" />
         </Console>
 
         <!--<RollingFile name="RollingFile"
@@ -31,7 +31,9 @@
         </Root>
 
         <!-- LOG "com.baeldung*" at TRACE level -->
-        <Logger name="com.myboot" level="trace"></Logger>
+        <Logger name="com.myboot" level="trace" includeLocation="true">
+            <AppenderRef ref="application" />
+        </Logger>
     </Loggers>
 
 </Configuration>
