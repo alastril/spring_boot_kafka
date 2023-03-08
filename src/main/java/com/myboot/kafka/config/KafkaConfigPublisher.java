@@ -9,10 +9,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.kafka.config.TopicBuilder;
 import org.springframework.kafka.core.*;
 import org.springframework.kafka.support.serializer.JsonSerializer;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Configuration
@@ -24,13 +26,20 @@ public class KafkaConfigPublisher {
     @Bean
     @Profile("Publisher")
     public NewTopic topicForSending() {
-        return new NewTopic(Constants.TOPIC_FOR_SENDING, 1, (short) 1);
+        return TopicBuilder.name(Constants.TOPIC_FOR_SENDING)
+                .partitions(5)
+                .replicas(1)
+                .compact()
+                .build();
     }
 
     @Bean
     @Profile("Publisher")
     public NewTopic topicForReply() {
-        return new NewTopic(Constants.REPLY_TOPIC_FOR_SENDING, 1, (short) 1);
+        return TopicBuilder.name(Constants.REPLY_TOPIC_FOR_SENDING)
+                .partitions(5)
+                .replicas(1)
+                .build();
     }
 
 
@@ -39,6 +48,13 @@ public class KafkaConfigPublisher {
      */
     @Bean
     public KafkaTemplate<String, Message> kafkaTemplateMessage() {
+        return new KafkaTemplate<>(
+                new DefaultKafkaProducerFactory<>(
+                        kafkaAdmin.getConfigurationProperties(), new StringSerializer(), new JsonSerializer<>()));
+    }
+
+    @Bean
+    public KafkaTemplate<String, List<Message>> kafkaTemplateMessageList() {
         return new KafkaTemplate<>(
                 new DefaultKafkaProducerFactory<>(
                         kafkaAdmin.getConfigurationProperties(), new StringSerializer(), new JsonSerializer<>()));

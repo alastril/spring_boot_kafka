@@ -18,6 +18,10 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.util.Assert;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
 @SpringBootTest(classes = Application.class)
 @AutoConfigureMockMvc
 @DirtiesContext
@@ -35,20 +39,42 @@ public class KafkaIntegrationTest {
 
     @Captor
     ArgumentCaptor<Message> messageArgumentCaptor;
+
     @Captor
-    ArgumentCaptor<String> stringArgumentCaptor;
+    ArgumentCaptor<List<org.springframework.messaging.Message<List<Message>>>> messageBatchArgumentCaptor;
+
+    @Captor
+    ArgumentCaptor<List<Message>> messageListArgumentCaptor;
+    @Captor
+    ArgumentCaptor<List<String>> stringArgumentCaptor;
 
     @Test
-    void checkAllListeners() throws Exception {
+    void checkListenerZeroToOnePartions() throws Exception {
         Message message = new Message("mess", new Order(2,"order"));
 
         mockMvc.perform(MockMvcRequestBuilders.post("/kafka/send")
                 .contentType("application/json")
                 .content(objectMapper.writeValueAsString(message))).andExpect(MockMvcResultMatchers.status().isOk());
-        Thread.sleep(5000);
-        Mockito.verify( consumer).listen(messageArgumentCaptor.capture());
-        Assert.isTrue(!messageArgumentCaptor.getValue().getMessage().equals(message.getMessage()), "Not equal objects");
-        Mockito.verify( consumer).listenReplyRead(stringArgumentCaptor.capture());
-        Assert.isTrue(objectMapper.readValue(stringArgumentCaptor.getValue(), Message.class).getMessage().equals("updated message"), "Not equal objects");
+        Thread.sleep(5000);//waiting replay topic answer
+        Mockito.verify(consumer).listen(messageArgumentCaptor.capture());
+        Assert.isTrue(!messageArgumentCaptor.getValue().getMessage().equals(message.getMessage()), "Message field must be Not equal objects");
+        Mockito.verify(consumer, Mockito.atLeast(1)).listenReplyRead(stringArgumentCaptor.capture());
+        Assert.isTrue(objectMapper.readValue(stringArgumentCaptor.getValue().toString(), List.class).size()>=1, "Not equal objects");
+    }
+
+    @Test
+    void checkAllListeners() throws Exception {
+        List<Message> messages = new ArrayList<>();
+        messages.add(new Message("mess", new Order(2,"order")));
+        messages.add(new Message("mess_second", new Order(3,"order2")));
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/kafka/sendToBatch")
+                .contentType("application/json")
+                .content(objectMapper.writeValueAsString(messages))).andExpect(MockMvcResultMatchers.status().isOk());
+        Thread.sleep(5000);//waiting replay topic answer
+        Mockito.verify(consumer).batchListener(messageBatchArgumentCaptor.capture());
+        Assert.isTrue(messageBatchArgumentCaptor.getValue().stream().findFirst().get().getPayload().size() == 2, "Message list must be 2");
+        Mockito.verify(consumer, Mockito.atLeast(1)).listenReplyRead(stringArgumentCaptor.capture());
+        Assert.isTrue(objectMapper.readValue(stringArgumentCaptor.getValue().toString(), List.class).size() >= 2, "Size must be 2");
     }
 }

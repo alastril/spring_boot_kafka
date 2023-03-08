@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 @Profile("Publisher")
 public class KafkaService {
@@ -19,4 +21,7 @@ public class KafkaService {
         kafkaPublisher.sendToKafkaObjectAsString(Constants.TOPIC_FOR_SENDING, message);
     }
 
+    public void sendObjectToKafkaBatch(List<Message> message) throws JsonProcessingException {
+        kafkaPublisher.sendToKafkaObjectAsStringBatch(Constants.TOPIC_FOR_SENDING, message);
+    }
 }

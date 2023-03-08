@@ -1,5 +1,8 @@
 Application for testing SpringBoot with kafka.
 
+install docker
+run in root dir project next command: docker compose -f docker-compose-kafka.yml up
+
 Run Publisher: with VM option -Dspring.profiles.active=Publisher
 Run Consumer: with VM option -Dspring.profiles.active=Consumer
 
@@ -12,3 +15,20 @@ body example:
         "name":"objName"
     }
 }
+
+API for sending list message + batch
+ localhost:8081/kafka/sendToBatch
+[{
+    "Mess":"test",
+    "Obj": {
+        "id":2,
+        "name":"objName"
+    }
+},
+{
+    "Mess":"test_two",
+    "Obj": {
+        "id":3,
+        "name":"objNameTwo"
+    }
+}]

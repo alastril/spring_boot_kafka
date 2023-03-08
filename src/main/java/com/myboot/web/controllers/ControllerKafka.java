@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import java.util.List;
+
 
 @Controller
 @RequestMapping("/kafka")
@@ -31,4 +33,11 @@ public class ControllerKafka {
         return new ResponseEntity<>("Message was added success!", HttpStatus.OK);
     }
 
+
+    @PostMapping(path = "/sendToBatch")
+    public ResponseEntity<?> postMessageToKafkaBatch(@RequestBody List<Message> message) throws JsonProcessingException {
+        logger.debug("Message object from body {}", message);
+        kafkaService.sendObjectToKafkaBatch(message);
+        return new ResponseEntity<>("Message was added success!", HttpStatus.OK);
+    }
 }
