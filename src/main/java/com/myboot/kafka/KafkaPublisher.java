@@ -40,8 +40,8 @@ public class KafkaPublisher {
         });
     }
 
-    public void sendToKafkaObjectAsStringBatch(String topicName, List<Message> message) throws JsonProcessingException {
-        CompletableFuture<SendResult<String, List<Message>>> futureObject = kafkaTemplateObjectSending.send(topicName,4, UUID.randomUUID().toString(), message);
+    public void sendToKafkaObjectAsStringBatch(String topicName, List<Message> messages) throws JsonProcessingException {
+        CompletableFuture<SendResult<String, List<Message>>> futureObject = kafkaTemplateObjectSending.send(topicName,4, UUID.randomUUID().toString(), messages);
         futureObject.whenComplete((result, ex) -> {
             if (ex == null) {
                 LOGGER.debug("Successes Object {}", result);

@@ -35,9 +35,9 @@ public class ControllerKafka {
 
 
     @PostMapping(path = "/sendToBatch")
-    public ResponseEntity<?> postMessageToKafkaBatch(@RequestBody List<Message> message) throws JsonProcessingException {
-        logger.debug("Message object from body {}", message);
-        kafkaService.sendObjectToKafkaBatch(message);
+    public ResponseEntity<?> postMessageToKafkaBatch(@RequestBody List<Message> messages) throws JsonProcessingException {
+        logger.debug("Message object from body {}", messages);
+        kafkaService.sendObjectToKafkaBatch(messages);
         return new ResponseEntity<>("Message was added success!", HttpStatus.OK);
     }
 }

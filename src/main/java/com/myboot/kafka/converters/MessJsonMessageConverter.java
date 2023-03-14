@@ -22,12 +22,8 @@ import java.util.List;
 @AllArgsConstructor
 public class MessJsonMessageConverter extends JsonMessageConverter {
 
-    ObjectMapper objectMapper;
-
     @Autowired
-    public void MessagingMessageConverter(ObjectMapper objectMapper) {
-        this.objectMapper = objectMapper;
-    }
+    ObjectMapper objectMapper;
 
     @Override
     protected Object extractAndConvertValue(ConsumerRecord<?, ?> record, Type type) {

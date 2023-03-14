@@ -78,8 +78,6 @@ public class KafkaConfigConsumer {
 
     @Bean
     public ConsumerFactory<String, Message> consumerMessageFactoryMessage() {
-        ObjectMapper om = new ObjectMapper();
-        JavaType type = om.getTypeFactory().constructParametricType(List.class, Message.class);
         return new DefaultKafkaConsumerFactory<>(
                 customProperties(), new StringDeserializer(),
                 new JsonDeserializer<>(Message.class));
