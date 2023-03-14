@@ -49,21 +49,21 @@ public class KafkaIntegrationTest {
     ArgumentCaptor<List<String>> stringArgumentCaptor;
 
     @Test
-    void checkListenerZeroToOnePartions() throws Exception {
+    void checkListenerZeroToOnePartitions() throws Exception {
         Message message = new Message("mess", new Order(2,"order"));
 
         mockMvc.perform(MockMvcRequestBuilders.post("/kafka/send")
                 .contentType("application/json")
                 .content(objectMapper.writeValueAsString(message))).andExpect(MockMvcResultMatchers.status().isOk());
         Thread.sleep(5000);//waiting replay topic answer
-        Mockito.verify(consumer).listen(messageArgumentCaptor.capture());
+        Mockito.verify(consumer).listener(messageArgumentCaptor.capture());
         Assert.isTrue(!messageArgumentCaptor.getValue().getMessage().equals(message.getMessage()), "Message field must be Not equal objects");
         Mockito.verify(consumer, Mockito.atLeast(1)).listenReplyRead(stringArgumentCaptor.capture());
         Assert.isTrue(objectMapper.readValue(stringArgumentCaptor.getValue().toString(), List.class).size()>=1, "Not equal objects");
     }
 
     @Test
-    void checkAllListeners() throws Exception {
+    void checkBatchListenerWithReply() throws Exception {
         List<Message> messages = new ArrayList<>();
         messages.add(new Message("mess", new Order(2,"order")));
         messages.add(new Message("mess_second", new Order(3,"order2")));

@@ -27,12 +27,12 @@ public class KafkaConsumer {
 
     @KafkaListener(id = "myKafkaListener", topicPartitions = {@TopicPartition(topic =  Constants.TOPIC_FOR_SENDING, partitions = {"0","1"})}, containerFactory = "containerFactory")
     @SendTo(Constants.REPLY_TOPIC_FOR_SENDING)
-    public Message listen(Message data) {
+    public Message listener(Message data) {
         LOGGER.debug("Data received {}", data);
         data.setMessage("updated message");
         return data;
     }
-    @KafkaListener(id = "myKafkaListener1", topicPartitions =
+    @KafkaListener(id = "myKafkaListenerBatch", topicPartitions =
             {@TopicPartition(topic =  Constants.TOPIC_FOR_SENDING, partitionOffsets = {@PartitionOffset(partition = "2-4", initialOffset = "10")})},
             containerFactory = "containerFactoryBatch")
     @SendTo(Constants.REPLY_TOPIC_FOR_SENDING)
@@ -47,7 +47,6 @@ public class KafkaConsumer {
                         }));
 
         LOGGER.debug("End batch work!");
-//        return data.stream().map(org.springframework.messaging.Message::getPayload).collect(Collectors.toList());
         return modifiedMyMess;
     }
 
