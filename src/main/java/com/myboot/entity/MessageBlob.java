@@ -1,11 +1,16 @@
 package com.myboot.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.sql.Blob;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -13,27 +18,16 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name="Orders")
-public class Order {
-
+public class MessageBlob implements Message {
     @Id
     long id;
-    @JsonProperty("number")
-    String numberOrder;
+    @JsonProperty("attachments")
+    List<Blob> attachments;
 
-    //TODO
-    @OneToMany
-    List<MessageSimple> noticeMessage;
-
-    String sum;
-
-    String typeMoney;
-
-    @ManyToMany
-    List<Goods> goodsList;
+    String body;
 
     LocalDateTime createTime;
 
     @ManyToOne
-    User customer;
+    User user;
 }
