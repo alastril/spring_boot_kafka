@@ -2,7 +2,7 @@ package com.myboot.web.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.myboot.Application;
-import com.myboot.entity.Message;
+import com.myboot.entity.MessageSimple;
 import com.myboot.web.services.KafkaService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -27,7 +27,7 @@ public class ControllerKafka {
     private KafkaService kafkaService;
 
     @PostMapping(path = "/send")
-    public ResponseEntity<?> postMessageToKafka(@RequestBody Message message) throws JsonProcessingException {
+    public ResponseEntity<?> postMessageToKafka(@RequestBody MessageSimple message) throws JsonProcessingException {
         logger.debug("Message object from body {}", message);
         kafkaService.sendObjectToKafka(message);
         return new ResponseEntity<>("Message was added success!", HttpStatus.OK);
@@ -35,7 +35,7 @@ public class ControllerKafka {
 
 
     @PostMapping(path = "/sendToBatch")
-    public ResponseEntity<?> postMessageToKafkaBatch(@RequestBody List<Message> messages) throws JsonProcessingException {
+    public ResponseEntity<?> postMessageToKafkaBatch(@RequestBody List<MessageSimple> messages) throws JsonProcessingException {
         logger.debug("Message object from body {}", messages);
         kafkaService.sendObjectToKafkaBatch(messages);
         return new ResponseEntity<>("Message was added success!", HttpStatus.OK);

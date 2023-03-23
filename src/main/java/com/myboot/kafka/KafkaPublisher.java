@@ -2,7 +2,7 @@ package com.myboot.kafka;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.myboot.entity.Message;
+import com.myboot.entity.MessageSimple;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,9 +26,9 @@ public class KafkaPublisher {
     @Autowired
     private KafkaTemplate<String, String> kafkaTemplateStringSending;
     @Autowired
-    private KafkaTemplate<String, List<Message>> kafkaTemplateObjectSending;
+    private KafkaTemplate<String, List<MessageSimple>> kafkaTemplateObjectSending;
 
-    public void sendToKafkaObjectAsString(String topicName, Message message) throws JsonProcessingException {
+    public void sendToKafkaObjectAsString(String topicName, MessageSimple message) throws JsonProcessingException {
         CompletableFuture<SendResult<String, String>> future =
                 kafkaTemplateStringSending.send(topicName,0, UUID.randomUUID().toString(), objectMapper.writeValueAsString(message));
         future.whenComplete((result, ex) -> {
@@ -40,8 +40,8 @@ public class KafkaPublisher {
         });
     }
 
-    public void sendToKafkaObjectAsStringBatch(String topicName, List<Message> messages) throws JsonProcessingException {
-        CompletableFuture<SendResult<String, List<Message>>> futureObject = kafkaTemplateObjectSending.send(topicName,4, UUID.randomUUID().toString(), messages);
+    public void sendToKafkaObjectAsStringBatch(String topicName, List<MessageSimple> messages) throws JsonProcessingException {
+        CompletableFuture<SendResult<String, List<MessageSimple>>> futureObject = kafkaTemplateObjectSending.send(topicName,4, UUID.randomUUID().toString(), messages);
         futureObject.whenComplete((result, ex) -> {
             if (ex == null) {
                 LOGGER.debug("Successes Object {}", result);
@@ -51,8 +51,8 @@ public class KafkaPublisher {
         });
     }
 
-    public void sendToKafkaObject(String topicName, List<Message> message) {
-        CompletableFuture<SendResult<String, List<Message>>> future =
+    public void sendToKafkaObject(String topicName, List<MessageSimple> message) {
+        CompletableFuture<SendResult<String, List<MessageSimple>>> future =
                 kafkaTemplateObjectSending.send(topicName, message);
         future.whenComplete((result, ex) -> {
             if (ex == null) {

@@ -1,9 +1,8 @@
 package com.myboot.kafka.config;
 
-import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.myboot.kafka.converters.MessJsonMessageConverter;
-import com.myboot.entity.Message;
+import com.myboot.entity.MessageSimple;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,8 +32,8 @@ public class KafkaConfigConsumer {
      * ContainerFactory bean for listener in @{@link com.myboot.kafka.KafkaConsumer}. This container factory replace default factory initiated by spring boot
      */
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, Message> containerFactory(ConsumerFactory<String, Message> consumerFactory, KafkaTemplate<String, Message> kafkaTemplate) {
-        ConcurrentKafkaListenerContainerFactory<String, Message> factory
+    public ConcurrentKafkaListenerContainerFactory<String, MessageSimple> containerFactory(ConsumerFactory<String, MessageSimple> consumerFactory, KafkaTemplate<String, MessageSimple> kafkaTemplate) {
+        ConcurrentKafkaListenerContainerFactory<String, MessageSimple> factory
                 = new ConcurrentKafkaListenerContainerFactory<>();
         //re init this for sending objects to kafka
         factory.setConsumerFactory(consumerFactory);
@@ -45,8 +44,8 @@ public class KafkaConfigConsumer {
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, List<Message>> containerFactoryBatch(ConsumerFactory<String, List<Message>> consumerFactory, KafkaTemplate<String, Message> kafkaTemplate) {
-        ConcurrentKafkaListenerContainerFactory<String, List<Message>> factory
+    public ConcurrentKafkaListenerContainerFactory<String, List<MessageSimple>> containerFactoryBatch(ConsumerFactory<String, List<MessageSimple>> consumerFactory, KafkaTemplate<String, MessageSimple> kafkaTemplate) {
+        ConcurrentKafkaListenerContainerFactory<String, List<MessageSimple>> factory
                 = new ConcurrentKafkaListenerContainerFactory<>();
         //re init this for sending objects to kafka
         factory.setConsumerFactory(consumerFactory);
@@ -60,16 +59,16 @@ public class KafkaConfigConsumer {
     }
 
     /**
-     * ConsumerFactory bean for converting string object to @{@link Message} object by Listener methods
+     * ConsumerFactory bean for converting string object to @{@link MessageSimple} object by Listener methods
      */
     @Bean
-    public ConsumerFactory<String, List<Message>> consumerListMessageFactoryMessage() {
+    public ConsumerFactory<String, List<MessageSimple>> consumerListMessageFactoryMessage() {
         /**
          * //if not using converters ( setBatchMessageConverter(...) ) we can convert list objects to list of POJO.
 //        JavaType type = objectMapper.getTypeFactory().constructParametricType(List.class, Message.class);
 //        JsonDeserializer<List<Message>> jsonDeserializer = new JsonDeserializer<>(type, true);
          */
-        JsonDeserializer<List<Message>> jsonDeserializer = new JsonDeserializer<>();
+        JsonDeserializer<List<MessageSimple>> jsonDeserializer = new JsonDeserializer<>();
         jsonDeserializer.getTypeMapper().addTrustedPackages("com.myboot.*");
         return new DefaultKafkaConsumerFactory<>(
                 customProperties(), new StringDeserializer(),
@@ -77,10 +76,10 @@ public class KafkaConfigConsumer {
     }
 
     @Bean
-    public ConsumerFactory<String, Message> consumerMessageFactoryMessage() {
+    public ConsumerFactory<String, MessageSimple> consumerMessageFactoryMessage() {
         return new DefaultKafkaConsumerFactory<>(
                 customProperties(), new StringDeserializer(),
-                new JsonDeserializer<>(Message.class));
+                new JsonDeserializer<>(MessageSimple.class));
     }
 
 

@@ -1,6 +1,6 @@
 package com.myboot.kafka.config;
 
-import com.myboot.entity.Message;
+import com.myboot.entity.MessageSimple;
 import com.myboot.util.Constants;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -8,6 +8,7 @@ import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Profile;
 import org.springframework.kafka.config.TopicBuilder;
 import org.springframework.kafka.core.*;
@@ -47,14 +48,14 @@ public class KafkaConfigPublisher {
      * Beans for Sending in Kafka
      */
     @Bean
-    public KafkaTemplate<String, Message> kafkaTemplateMessage() {
+    public KafkaTemplate<String, MessageSimple> kafkaTemplateMessage() {
         return new KafkaTemplate<>(
                 new DefaultKafkaProducerFactory<>(
                         kafkaAdmin.getConfigurationProperties(), new StringSerializer(), new JsonSerializer<>()));
     }
 
     @Bean
-    public KafkaTemplate<String, List<Message>> kafkaTemplateMessageList() {
+    public KafkaTemplate<String, List<MessageSimple>> kafkaTemplateMessageList() {
         return new KafkaTemplate<>(
                 new DefaultKafkaProducerFactory<>(
                         kafkaAdmin.getConfigurationProperties(), new StringSerializer(), new JsonSerializer<>()));
