@@ -8,7 +8,6 @@ import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Profile;
 import org.springframework.kafka.config.TopicBuilder;
 import org.springframework.kafka.core.*;
@@ -25,7 +24,7 @@ public class KafkaConfigPublisher {
     KafkaAdmin kafkaAdmin;
 
     @Bean
-    @Profile("Publisher")
+    @Profile({"Publisher","local"})
     public NewTopic topicForSending() {
         return TopicBuilder.name(Constants.TOPIC_FOR_SENDING)
                 .partitions(5)
@@ -35,7 +34,7 @@ public class KafkaConfigPublisher {
     }
 
     @Bean
-    @Profile("Publisher")
+    @Profile({"Publisher","local"})
     public NewTopic topicForReply() {
         return TopicBuilder.name(Constants.REPLY_TOPIC_FOR_SENDING)
                 .partitions(5)

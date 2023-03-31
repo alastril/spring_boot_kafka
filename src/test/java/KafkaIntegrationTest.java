@@ -27,7 +27,7 @@ import java.util.List;
 @SpringBootTest(classes = Application.class)
 @AutoConfigureMockMvc
 @DirtiesContext
-@ActiveProfiles(profiles={"Publisher","Consumer"})
+@ActiveProfiles(profiles={"Publisher","Consumer", "local"})
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class KafkaIntegrationTest {
 

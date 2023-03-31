@@ -2,6 +2,8 @@ Application for testing SpringBoot with kafka.
 
 install docker
 run in root dir project next command: docker compose -f docker-compose-kafka.yml up
+run in root dir project next command: docker compose -f docker-compose-kafka-without-mvn.yml up
+mvn clean compile -P docker assembly:single
 
 Run Publisher: with VM option -Dspring.profiles.active=Publisher
 Run Consumer: with VM option -Dspring.profiles.active=Consumer
