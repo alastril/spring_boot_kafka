@@ -17,7 +17,7 @@ import java.util.List;
 
 
 @Component
-@Profile({"Consumer","local"})
+@Profile({"Consumer","Core"})
 public class KafkaConsumer {
 
     private static final Logger LOGGER = LogManager.getLogger(KafkaConsumer.class);

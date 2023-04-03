@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 @Configuration
-@Profile({"Consumer","local"})
+@Profile({"Consumer","Core"})
 public class KafkaConfigConsumer {
 
     @Autowired

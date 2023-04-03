@@ -67,12 +67,14 @@
     </dependencies>
     <profiles>
         <profile>
+            <!-- this profile for inject LOGGER log4j2-dependencies(this dependency not work correct in docker) -->
             <id>local</id>
             <dependencies>
                 <dependency>
                     <groupId>org.springframework.boot</groupId>
                     <artifactId>spring-boot-starter-log4j2</artifactId>
                 </dependency>
+                <!-- to avoid conflicts with logger-lib dependencies - exclude spring-boot-starter-logging -->
                 <dependency>
                     <groupId>org.springframework.boot</groupId>
                     <artifactId>spring-boot-starter-web</artifactId>
@@ -86,6 +88,7 @@
             </dependencies>
         </profile>
         <profile>
+            <!--this profile for inject spring-boot-starter-web with default LOGGER log4j2-dependencies(need for docker)-->
             <id>docker</id>
             <dependencies>
                 <dependency>

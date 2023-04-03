@@ -1,12 +1,17 @@
 Application for testing SpringBoot with kafka.
 
 install docker
-run in root dir project next command: docker compose -f docker-compose-kafka.yml up
-run in root dir project next command: docker compose -f docker-compose-kafka-without-mvn.yml up
+
+run in root dir project next command with maven build:
+    docker compose -f docker-compose-kafka.yml up
+OR run in root dir project next command WITHOUT maven build:
+    docker compose -f docker-compose-kafka-without-mvn.yml up
+
+Optional, build jar with all dependencies(default build not working in docker):
 mvn clean compile -P docker assembly:single
 
-Run Publisher: with VM option -Dspring.profiles.active=Publisher
-Run Consumer: with VM option -Dspring.profiles.active=Consumer
+Run Publisher: with VM option -Dspring.profiles.active=Publisher,Core
+Run Consumer: with VM option -Dspring.profiles.active=Consumer,Core
 
 API for sending message localhost:8081/kafka/send
 body example:
