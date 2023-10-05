@@ -24,7 +24,7 @@ public class KafkaConfigPublisher {
     KafkaAdmin kafkaAdmin;
 
     @Bean
-    @Profile({"Publisher","Core"})
+    @Profile({"Publisher"})
     public NewTopic topicForSending() {
         return TopicBuilder.name(Constants.TOPIC_FOR_SENDING)
                 .partitions(5)
@@ -34,7 +34,7 @@ public class KafkaConfigPublisher {
     }
 
     @Bean
-    @Profile({"Publisher","Core"})
+    @Profile({"Publisher"})
     public NewTopic topicForReply() {
         return TopicBuilder.name(Constants.REPLY_TOPIC_FOR_SENDING)
                 .partitions(5)

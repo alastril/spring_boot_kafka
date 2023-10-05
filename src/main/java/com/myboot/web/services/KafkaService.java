@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 @Component
-@Profile({"Publisher","Core"})
+@Profile({"Publisher"})
 public class KafkaService {
 
     @Autowired

@@ -16,7 +16,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 @Component
-@Profile({"Publisher","Core"})
+@Profile({"Publisher"})
 public class KafkaPublisher {
 
     @Autowired

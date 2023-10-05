@@ -20,7 +20,7 @@ import java.util.List;
 
 @Controller
 @RequestMapping("/kafka")
-@Profile({"Publisher","Core"})
+@Profile({"Publisher"})
 public class ControllerKafka {
     private Logger logger = LogManager.getLogger(Application.class);
     @Autowired
