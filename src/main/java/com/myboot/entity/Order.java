@@ -17,6 +17,7 @@ import java.util.List;
 public class Order {
 
     @Id
+    @GeneratedValue(strategy= GenerationType.IDENTITY)
     long id;
     @JsonProperty("number")
     String numberOrder;

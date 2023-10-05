@@ -1,7 +1,11 @@
 package com.myboot.entity;
-
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.myboot.converters.ZonedDateTimeDeserializer;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
@@ -17,13 +21,16 @@ import java.util.List;
 @Entity
 public class User {
     @Id
+    @GeneratedValue(strategy= GenerationType.IDENTITY)
     long id;
-    @Column
+    @Column(name = "user_name")
     String userName;
 
     @OneToMany
     List<Order> orderList;
 
-    @Column
+    @Column(name = "date_creation")
+    @JsonProperty("dateCreation")
+    @JsonDeserialize(using = ZonedDateTimeDeserializer.class)
     ZonedDateTime dateCreation;
 }

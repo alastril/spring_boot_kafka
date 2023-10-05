@@ -16,6 +16,7 @@ import java.util.Map;
 public class Goods {
 
     @Id
+    @GeneratedValue(strategy= GenerationType.IDENTITY)
     long id;
     String name;
     String description;
