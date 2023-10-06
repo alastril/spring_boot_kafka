@@ -23,18 +23,18 @@ public class Order {
     String numberOrder;
 
     //TODO
-    @OneToMany
+    @OneToMany(cascade = CascadeType.ALL)
     List<MessageSimple> noticeMessage;
 
     String sum;
 
     String typeMoney;
 
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.ALL)
     List<Goods> goodsList;
 
     LocalDateTime createTime;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     User customer;
 }

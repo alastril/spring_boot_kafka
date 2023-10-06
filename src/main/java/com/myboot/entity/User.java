@@ -2,6 +2,7 @@ package com.myboot.entity;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.myboot.converters.ZonedDateTimeDeserializer;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -26,7 +27,7 @@ public class User {
     @Column(name = "user_name")
     String userName;
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.ALL)
     List<Order> orderList;
 
     @Column(name = "date_creation")

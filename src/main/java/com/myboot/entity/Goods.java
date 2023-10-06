@@ -20,7 +20,7 @@ public class Goods {
     long id;
     String name;
     String description;
-    @OneToMany
+    @OneToMany(cascade = CascadeType.ALL)
     List<MessageBlob> feedbackMessages;
 
     @ElementCollection
