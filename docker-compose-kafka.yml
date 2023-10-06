@@ -26,6 +26,8 @@ services:
     container_name: mysql
     restart: always
     environment:
+#      Europe/Kiev
+      TZ: UTC
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: kafka_db
       MYSQL_ROOT_HOST: '%'
