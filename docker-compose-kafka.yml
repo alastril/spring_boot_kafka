@@ -26,11 +26,11 @@ services:
     container_name: mysql
     restart: always
     environment:
-#      Europe/Kiev
-      TZ: UTC
+#      TZ: Europe/Kiev
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: kafka_db
       MYSQL_ROOT_HOST: '%'
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-time-zone=UTC
     ports:
       - '3306:3306'
     volumes:
