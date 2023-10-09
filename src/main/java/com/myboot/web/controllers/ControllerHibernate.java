@@ -2,23 +2,23 @@ package com.myboot.web.controllers;
 
 import com.myboot.Application;
 import com.myboot.entity.User;
+import com.myboot.request.RequestDate;
 import com.myboot.web.services.HibernateService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.time.ZonedDateTime;
 import java.util.List;
 
 @Controller
@@ -30,11 +30,31 @@ public class ControllerHibernate {
     @Autowired
     private HibernateService hibernateService;
 
-    @GetMapping(path = "/users/{date}")
+    @GetMapping(path = "/users")
     @ResponseBody
-    public ResponseEntity<List<User>> getMessageToKafka(@PathVariable ZonedDateTime date) {
-        logger.debug("Message object from body {}", date);
-        return new ResponseEntity<>(hibernateService.getUsersByDateCreated(Pageable.ofSize(5), date), HttpStatus.OK);
+    public ResponseEntity<List<User>> getMessageToKafka(@RequestBody RequestDate requestDate) {
+        logger.debug("Message object from body {}", requestDate);
+        return new ResponseEntity<>(hibernateService.getUsersByDateCreated(
+                PageRequest.of(requestDate.getPage(), requestDate.getCountItemsPerPage(), Sort.by(Sort.Direction.fromString(requestDate.getDirection().name()),requestDate.getFieldsSorted().toArray(new String[0]))),
+                requestDate.getDate()), HttpStatus.OK);
+    }
+
+    @GetMapping(path = "/users/before")
+    @ResponseBody
+    public ResponseEntity<List<User>> getUserByDateFilterBefore(@RequestBody RequestDate requestDate) {
+        logger.debug("Message object from body {}", requestDate);
+        return new ResponseEntity<>(hibernateService.getUsersSliceByDateCreatedBefore(
+                PageRequest.of(requestDate.getPage(), requestDate.getCountItemsPerPage(), Sort.by(Sort.Direction.fromString(requestDate.getDirection().name()),requestDate.getFieldsSorted().toArray(new String[0]))),
+                requestDate.getDate()), HttpStatus.OK);
+    }
+
+    @GetMapping(path = "/users/between")
+    @ResponseBody
+    public ResponseEntity<List<User>> getUserByDateFilterBetween(@RequestBody RequestDate requestDate) {
+        logger.debug("Message object from body {}", requestDate);
+        return new ResponseEntity<>(hibernateService.getUsersSliceByDateCreatedBetween(
+                PageRequest.of(requestDate.getPage(), requestDate.getCountItemsPerPage(), Sort.by(Sort.Direction.fromString(requestDate.getDirection().name()),requestDate.getFieldsSorted().toArray(new String[0]))),
+                requestDate.getDateFrom(), requestDate.getDateTo()), HttpStatus.OK);
     }
 
     @PostMapping(path = "/users")

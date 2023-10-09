@@ -1,6 +1,5 @@
 package com.myboot.web.services;
 
-import com.myboot.Application;
 import com.myboot.entity.User;
 import com.myboot.repository.UserRepository;
 import org.apache.logging.log4j.LogManager;
@@ -22,6 +21,14 @@ public class HibernateService {
 
     public List<User> getUsersByDateCreated(Pageable pageable, ZonedDateTime dateCreated) {
         return userRepository.findAllByDateCreation(pageable,dateCreated).getContent();
+    }
+
+    public List<User> getUsersSliceByDateCreatedBefore(Pageable pageable, ZonedDateTime dateCreated) {
+        return userRepository.findAllSliceByDateCreationBefore(pageable,dateCreated).getContent();
+    }
+
+    public List<User> getUsersSliceByDateCreatedBetween(Pageable pageable, ZonedDateTime dateCreationStart, ZonedDateTime dateCreationEnd) {
+        return userRepository.findByDateCreationBetween(pageable,dateCreationStart,dateCreationEnd);
     }
 
     public void addUser(User user) {

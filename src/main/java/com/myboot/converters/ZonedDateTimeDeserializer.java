@@ -24,7 +24,11 @@ public class ZonedDateTimeDeserializer extends StdDeserializer<ZonedDateTime> {
 
     @Override
     public ZonedDateTime deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
-        return LocalDate.parse(jsonParser.getText(), DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+        String date = jsonParser.getText();
+        if(date == null || date.isBlank()) {
+            return null;
+        }
+        return LocalDate.parse(date, DateTimeFormatter.ofPattern("yyyy-MM-dd"))
                 .atTime(LocalDateTime.MIN.toLocalTime()).atZone(ZoneId.systemDefault());
     }
 }

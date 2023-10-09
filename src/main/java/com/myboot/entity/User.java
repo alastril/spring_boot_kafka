@@ -1,7 +1,9 @@
 package com.myboot.entity;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.myboot.converters.ZonedDateTimeDeserializer;
+import com.myboot.converters.ZonedDateTimeSerializer;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -33,5 +35,6 @@ public class User {
     @Column(name = "date_creation")
     @JsonProperty("dateCreation")
     @JsonDeserialize(using = ZonedDateTimeDeserializer.class)
+    @JsonSerialize(using = ZonedDateTimeSerializer.class)
     ZonedDateTime dateCreation;
 }

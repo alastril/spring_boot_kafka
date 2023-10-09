@@ -16,5 +16,5 @@ public interface UserRepository extends PagingAndSortingRepository<User, Long>, 
     Page<User> findAllByDateCreation(Pageable pageable, ZonedDateTime dateCreation);
     Slice<User> findAllSliceByDateCreationBefore(Pageable pageable, ZonedDateTime dateCreationBefore);
 
-    List<User> findByDateCreationBetween(ZonedDateTime dateCreationStart, ZonedDateTime dateCreationEnd);
+    List<User> findByDateCreationBetween(Pageable pageable, ZonedDateTime dateCreationStart, ZonedDateTime dateCreationEnd);
 }
