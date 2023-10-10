@@ -1,41 +1,51 @@
+package com.myboot;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.myboot.Application;
+import com.myboot.config.ConfigTestComposeFile;
+import com.myboot.config.TestConfigComposeLibContainer;
 import com.myboot.entity.MessageSimple;
 import com.myboot.kafka.KafkaConsumer;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.SpyBean;
-import org.springframework.kafka.core.KafkaAdmin;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.event.annotation.BeforeTestClass;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.util.Assert;
+import org.testcontainers.shaded.org.awaitility.Awaitility;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
 @SpringBootTest(classes = Application.class)
 @AutoConfigureMockMvc
 @DirtiesContext
-@ActiveProfiles(profiles={"Publisher","Consumer", "Core"})
+@ActiveProfiles(profiles={"Publisher","Consumer","test"})
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@ContextConfiguration(classes = ConfigTestComposeFile.class)
 public class KafkaIntegrationTest {
 
+    private static final Logger LOGGER = LogManager.getLogger(KafkaIntegrationTest.class);
     @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
-    KafkaAdmin kafkaAdmin;
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -55,7 +65,7 @@ public class KafkaIntegrationTest {
 
     @BeforeAll
     public void waitingKafkaInit() throws Exception {
-        Thread.sleep(3000);//value depends on system
+        Thread.sleep(5000);//value depends on system
     }
 
     @Test
@@ -65,8 +75,9 @@ public class KafkaIntegrationTest {
         mockMvc.perform(MockMvcRequestBuilders.post("/kafka/send")
                 .contentType("application/json")
                 .content(objectMapper.writeValueAsString(message))).andExpect(MockMvcResultMatchers.status().isOk());
-        Thread.sleep(500);//waiting replay topic answer
-        Mockito.verify(consumer).listener(messageArgumentCaptor.capture());
+
+        Awaitility.await().atMost(Duration.ofSeconds(1)).untilAsserted(()
+                -> Mockito.verify(consumer).listener(messageArgumentCaptor.capture()));
         Assert.isTrue(!messageArgumentCaptor.getValue().getBody().equals(message.getBody()), "Message field must be Not equal objects");
         Mockito.verify(consumer, Mockito.atLeast(1)).listenReplyRead(stringArgumentCaptor.capture());
         Assert.isTrue(objectMapper.readValue(stringArgumentCaptor.getValue().toString(), List.class).size()>=1, "Not equal objects");
@@ -81,8 +92,9 @@ public class KafkaIntegrationTest {
         mockMvc.perform(MockMvcRequestBuilders.post("/kafka/sendToBatch")
                 .contentType("application/json")
                 .content(objectMapper.writeValueAsString(messages))).andExpect(MockMvcResultMatchers.status().isOk());
-        Thread.sleep(500);//waiting replay topic answer
-        Mockito.verify(consumer).batchListener(messageBatchArgumentCaptor.capture());
+
+        Awaitility.await().atMost(Duration.ofSeconds(1)).untilAsserted(()
+                -> Mockito.verify(consumer).batchListener(messageBatchArgumentCaptor.capture()));
         Assert.isTrue(messageBatchArgumentCaptor.getValue().stream().findFirst().get().getPayload().size() == 2, "Message list must be 2");
         Mockito.verify(consumer, Mockito.atLeast(1)).listenReplyRead(stringArgumentCaptor.capture());
         Assert.isTrue(objectMapper.readValue(stringArgumentCaptor.getValue().toString(), List.class).size() >= 2, "Size must be 2");
