@@ -22,7 +22,8 @@ public class KafkaConsumer {
 
     private static final Logger LOGGER = LogManager.getLogger(KafkaConsumer.class);
 
-    @KafkaListener(id = "myKafkaListener", topicPartitions = {@TopicPartition(topic =  Constants.TOPIC_FOR_SENDING, partitions = {"0","1"})}, containerFactory = "containerFactory")
+    @KafkaListener(id = "myKafkaListener", topicPartitions = {@TopicPartition(topic =  Constants.TOPIC_FOR_SENDING, partitions = {"0","1"})},
+            containerFactory = "containerFactory")
     @SendTo(Constants.REPLY_TOPIC_FOR_SENDING)
     public MessageSimple listener(MessageSimple data) {
         LOGGER.debug("Data received {}", data);
