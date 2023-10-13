@@ -1,5 +1,6 @@
 package com.myboot.config;
 
+import jakarta.annotation.PreDestroy;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -35,5 +36,13 @@ public class TestConfigComposeLibContainer {
         mySQLContainer.start();
         kafkaContainer.start();
         overrideProperties();
+    }
+
+    @PreDestroy
+    public void stopContainer(){
+        LOGGER.debug("Stopping docker containers...");
+        mySQLContainer.stop();
+        kafkaContainer.stop();
+        LOGGER.debug("Docker containers stopped!");
     }
 }
