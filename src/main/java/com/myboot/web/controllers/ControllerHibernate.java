@@ -1,6 +1,5 @@
 package com.myboot.web.controllers;
 
-import com.myboot.Application;
 import com.myboot.entity.User;
 import com.myboot.request.RequestDate;
 import com.myboot.web.services.HibernateService;
@@ -26,13 +25,13 @@ import java.util.List;
 @Profile({"Hibernate"})
 public class ControllerHibernate {
 
-    private Logger logger = LogManager.getLogger(Application.class);
+    private Logger logger = LogManager.getLogger(ControllerHibernate.class);
     @Autowired
     private HibernateService hibernateService;
 
     @GetMapping(path = "/users")
     @ResponseBody
-    public ResponseEntity<List<User>> getMessageToKafka(@RequestBody RequestDate requestDate) {
+    public ResponseEntity<List<User>> getUsersByDateCreated(@RequestBody RequestDate requestDate) {
         logger.debug("Message object from body {}", requestDate);
         return new ResponseEntity<>(hibernateService.getUsersByDateCreated(
                 PageRequest.of(requestDate.getPage(), requestDate.getCountItemsPerPage(), Sort.by(Sort.Direction.fromString(requestDate.getDirection().name()),requestDate.getFieldsSorted().toArray(new String[0]))),

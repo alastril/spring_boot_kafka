@@ -1,7 +1,6 @@
 package com.myboot.web.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.myboot.Application;
 import com.myboot.entity.MessageSimple;
 import com.myboot.web.services.KafkaService;
 import org.apache.logging.log4j.LogManager;
@@ -22,7 +21,7 @@ import java.util.List;
 @RequestMapping("/kafka")
 @Profile({"Publisher"})
 public class ControllerKafka {
-    private Logger logger = LogManager.getLogger(Application.class);
+    private Logger logger = LogManager.getLogger(ControllerKafka.class);
     @Autowired
     private KafkaService kafkaService;
 
