@@ -8,6 +8,7 @@ import com.myboot.request.RequestDate;
 import com.myboot.request.SortDirection;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -22,6 +23,9 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.util.Assert;
+import org.testcontainers.containers.DockerComposeContainer;
+import org.testcontainers.containers.KafkaContainer;
+import org.testcontainers.containers.MySQLContainer;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -32,10 +36,10 @@ import java.util.List;
 
 @SpringBootTest(classes = Application.class)
 @AutoConfigureMockMvc
-@DirtiesContext
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @ActiveProfiles(profiles = {"Hibernate", "test"})
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@ContextConfiguration(classes = ConfigTestComposeFile.class)
+@ContextConfiguration(initializers = ConfigTestComposeFile.class)
 public class HibernateIntegrationTest {
 
     private static final Logger LOGGER = LogManager.getLogger(HibernateIntegrationTest.class);
@@ -48,16 +52,41 @@ public class HibernateIntegrationTest {
     @Autowired
     RequestDate requestDate;
 
+    @Autowired(required = false)
+    MySQLContainer mySQLContainer;
+
+    @Autowired(required = false)
+    KafkaContainer kafkaContainer;
+
+    @Autowired(required = false)
+    DockerComposeContainer dockerComposeContainer;
+
     @BeforeAll
     public void init() throws Exception {
         requestDate.setDirection(SortDirection.DESC);
         requestDate.setFieldsSorted(Arrays.asList("dateCreation","id"));
     }
 
+    @AfterAll
+    public void destroy() throws Exception {
+        LOGGER.debug("Stopping docker containers...");
+        if (mySQLContainer != null) {
+            mySQLContainer.stop();
+        }
+        if (kafkaContainer != null) {
+            kafkaContainer.stop();
+        }
+        if(dockerComposeContainer != null) {
+            dockerComposeContainer.stop();
+        }
+        LOGGER.debug("Docker containers stopped!");
+    }
+
     @Test
     void checkUsersCountFindingByDateCreation() throws Exception {
         requestDate.setDate(LocalDate.parse("2023-07-24", DateTimeFormatter.ofPattern("yyyy-MM-dd"))
                 .atTime(LocalDateTime.MIN.toLocalTime()).atZone(ZoneId.systemDefault()));
+        requestDate.setCountItemsPerPage(10);
         MvcResult resultActions = mockMvc.perform(MockMvcRequestBuilders.get("/hyber/users")
                 .contentType("application/json")
                 .content(objectMapper.writeValueAsString(requestDate))).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
@@ -97,6 +126,7 @@ public class HibernateIntegrationTest {
     void checkUsersCountFindingByDateCreationBefore() throws Exception {
         requestDate.setDate(LocalDate.parse("2023-07-24", DateTimeFormatter.ofPattern("yyyy-MM-dd"))
                 .atTime(LocalDateTime.MIN.toLocalTime()).atZone(ZoneId.systemDefault()));
+        requestDate.setCountItemsPerPage(10);
         MvcResult resultActions = mockMvc.perform(MockMvcRequestBuilders.get("/hyber/users/before")
                 .contentType("application/json")
                 .content(objectMapper.writeValueAsString(requestDate))).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
@@ -112,6 +142,7 @@ public class HibernateIntegrationTest {
         requestDate.setDate(LocalDate.parse("2023-07-24", DateTimeFormatter.ofPattern("yyyy-MM-dd"))
                 .atTime(LocalDateTime.MIN.toLocalTime()).atZone(ZoneId.systemDefault()));
         requestDate.setCountItemsPerPage(2);
+        requestDate.setPage(0);
         MvcResult resultActions = mockMvc.perform(MockMvcRequestBuilders.get("/hyber/users/before")
                 .contentType("application/json")
                 .content(objectMapper.writeValueAsString(requestDate))).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
@@ -138,6 +169,8 @@ public class HibernateIntegrationTest {
                 .atTime(LocalDateTime.MIN.toLocalTime()).atZone(ZoneId.systemDefault()));
         requestDate.setDateTo(LocalDate.parse("2023-07-25", DateTimeFormatter.ofPattern("yyyy-MM-dd"))
                 .atTime(LocalDateTime.MIN.toLocalTime()).atZone(ZoneId.systemDefault()));
+        requestDate.setCountItemsPerPage(10);
+        requestDate.setPage(0);
         MvcResult resultActions = mockMvc.perform(MockMvcRequestBuilders.get("/hyber/users/between")
                 .contentType("application/json")
                 .content(objectMapper.writeValueAsString(requestDate))).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
@@ -158,6 +191,7 @@ public class HibernateIntegrationTest {
         requestDate.setDateTo(LocalDate.parse("2023-07-25", DateTimeFormatter.ofPattern("yyyy-MM-dd"))
                 .atTime(LocalDateTime.MIN.toLocalTime()).atZone(ZoneId.systemDefault()));
         requestDate.setCountItemsPerPage(3);
+        requestDate.setPage(0);
         MvcResult resultActions = mockMvc.perform(MockMvcRequestBuilders.get("/hyber/users/between")
                 .contentType("application/json")
                 .content(objectMapper.writeValueAsString(requestDate))).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();

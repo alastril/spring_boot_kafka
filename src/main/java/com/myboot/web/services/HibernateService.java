@@ -7,6 +7,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -31,6 +32,7 @@ public class HibernateService {
         return userRepository.findByDateCreationBetween(pageable,dateCreationStart,dateCreationEnd);
     }
 
+    @Transactional
     public void addUser(User user) {
         logger.info("adding user" + user);
         userRepository.save(user);
