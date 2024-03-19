@@ -10,6 +10,12 @@ services:
   
   kafka:
     image: confluentinc/cp-kafka:latest
+    healthcheck:
+      test: [ "CMD-SHELL", "nc -z localhost 9092 || exit 1" ]
+      start_period: 10s
+      interval: 5s
+      timeout: 10s
+      retries: 5
     depends_on:
       - zookeeper
     ports:
@@ -37,8 +43,10 @@ services:
       - mysql:/var/lib/mysql
   publisher:
     depends_on:
-      - mysql
-      - kafka
+      mysql:
+        condition: service_started
+      kafka:
+        condition: service_healthy #not working, need delay restart
     container_name: publisher
     build:
       dockerfile: Dockerfile-without_MVN
@@ -51,6 +59,7 @@ services:
     depends_on:
       - mysql
       - kafka
+      - publisher
     container_name: consumer
     build:
       dockerfile: Dockerfile-without_MVN
@@ -62,6 +71,7 @@ services:
   hibernate:
     depends_on:
       - mysql
+      - publisher
     container_name: hibernate
     build:
       dockerfile: Dockerfile-without_MVN

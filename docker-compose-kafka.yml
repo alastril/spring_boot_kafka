@@ -51,6 +51,7 @@ services:
     depends_on:
       - mysql
       - kafka
+      - publisher
     container_name: consumer
     build:
       dockerfile: Dockerfile
@@ -62,6 +63,7 @@ services:
   hibernate:
     depends_on:
       - mysql
+      - publisher
     container_name: hibernate
     build:
       dockerfile: Dockerfile

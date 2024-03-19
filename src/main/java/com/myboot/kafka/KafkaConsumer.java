@@ -31,7 +31,7 @@ public class KafkaConsumer {
         return data;
     }
     @KafkaListener(id = "myKafkaListenerBatch", topicPartitions =
-            {@TopicPartition(topic =  Constants.TOPIC_FOR_SENDING, partitionOffsets = {@PartitionOffset(partition = "2-4", initialOffset = "10")})},
+            {@TopicPartition(topic =  Constants.TOPIC_FOR_SENDING, partitionOffsets = {@PartitionOffset(partition = "2-4", initialOffset = "2")})},
             containerFactory = "containerFactoryBatch")
     @SendTo(Constants.REPLY_TOPIC_FOR_SENDING)
     public List<MessageSimple> batchListener(List<org.springframework.messaging.Message<List<MessageSimple>>> data) {
