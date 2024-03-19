@@ -8,6 +8,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.mockito.ArgumentCaptor;
@@ -103,7 +104,8 @@ public class KafkaIntegrationTest {
         Awaitility.await().atMost(Duration.ofSeconds(1)).untilAsserted(
                 () -> Mockito.verify(consumer).listener(messageArgumentCaptor.capture()));
         Assert.isTrue(!messageArgumentCaptor.getValue().getBody().equals(message.getBody()), "Message field must be Not equal objects");
-        Mockito.verify(consumer, Mockito.atLeast(1)).listenReplyRead(stringArgumentCaptor.capture());
+        Awaitility.await().atMost(Duration.ofSeconds(1)).untilAsserted(
+                () -> Mockito.verify(consumer, Mockito.atLeast(1)).listenReplyRead(stringArgumentCaptor.capture()));
         Assert.isTrue(objectMapper.readValue(stringArgumentCaptor.getValue().toString(), List.class).size()>=1, "Not equal objects");
     }
 
@@ -120,7 +122,8 @@ public class KafkaIntegrationTest {
         Awaitility.await().atMost(Duration.ofSeconds(1)).untilAsserted(
                 () -> Mockito.verify(consumer).batchListener(messageBatchArgumentCaptor.capture()));
         Assert.isTrue(messageBatchArgumentCaptor.getValue().stream().findFirst().get().getPayload().size() == 2, "Message list must be 2");
-        Mockito.verify(consumer, Mockito.atLeast(1)).listenReplyRead(stringArgumentCaptor.capture());
+        Awaitility.await().atMost(Duration.ofSeconds(1)).untilAsserted(
+                () -> Mockito.verify(consumer, Mockito.atLeast(1)).listenReplyRead(stringArgumentCaptor.capture()));
         Assert.isTrue(objectMapper.readValue(stringArgumentCaptor.getValue().toString(), List.class).size() >= 2, "Size must be 2");
     }
 }

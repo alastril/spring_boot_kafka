@@ -7,7 +7,7 @@ run in root dir project next command with maven build:
 OR run in root dir project next command WITHOUT maven build:
     docker compose -f docker-compose-kafka-without-mvn.yml up
 
-Optional, build jar with all dependencies(default build not working in docker):
+Optional, build jar with all dependencies(default build not working in docker, this need before running command "WITHOUT maven build"):
 mvn clean compile -P docker assembly:single
 
 Run Publisher: with VM option -Dspring.profiles.active=Publisher,Core

@@ -59,6 +59,22 @@ services:
       - '8082:8082'
     environment:
       SPRING_PROFILES_ACTIVE: Consumer, docker
+  hibernate:
+    depends_on:
+      - mysql
+    container_name: hibernate
+    build:
+      dockerfile: Dockerfile-without_MVN
+    image: sb_hibernate:latest
+    ports:
+      - '8083:8083'
+    environment:
+      SPRING_PROFILES_ACTIVE: Hibernate, docker
+#    networks:
+#      - spring-cloud-network
+#networks:
+#  spring-cloud-network:
+#    driver: bridge
 volumes:
   mysql:
     driver: local
