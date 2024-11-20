@@ -1,13 +1,11 @@
 package com.myboot.config;
 
-import jakarta.annotation.PreDestroy;
-import jakarta.persistence.EntityManagerFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.testcontainers.containers.DockerComposeContainer;
+import org.testcontainers.containers.wait.strategy.*;
 import org.testcontainers.junit.jupiter.Container;
 
 import java.io.File;
@@ -24,9 +22,9 @@ public class ConfigTestComposeFile implements
 
     @Container
     public  DockerComposeContainer dockerComposeContainer = new DockerComposeContainer( new File("src/test/resources/docker-compose-test.yml"))
-            .withExposedService("zookeeper_1",2181)
-            .withExposedService("mysql_1",3306)
-            .withExposedService("kafka_1",9092);
+            .withExposedService("zookeeper_1",2181, Wait.forListeningPort())
+            .withExposedService("mysql_1",3306, Wait.forListeningPort())
+            .withExposedService("kafka_1",9092, Wait.forListeningPort());
 
     @Override
     public void initialize(ConfigurableApplicationContext applicationContext) {

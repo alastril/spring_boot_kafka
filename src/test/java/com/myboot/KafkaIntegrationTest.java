@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.myboot.config.ConfigTestComposeFile;
 import com.myboot.entity.MessageSimple;
 import com.myboot.kafka.KafkaConsumer;
+import org.apache.kafka.common.PartitionInfo;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.AfterAll;
@@ -14,9 +15,11 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.kafka.core.KafkaAdmin;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
@@ -30,8 +33,7 @@ import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.shaded.org.awaitility.Awaitility;
 
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @SpringBootTest(classes = {Application.class})
 @AutoConfigureMockMvc
@@ -69,10 +71,42 @@ public class KafkaIntegrationTest {
     @Captor
     ArgumentCaptor<List<String>> stringArgumentCaptor;
 
+    @Autowired
+    KafkaAdmin kafkaAdmin;
+
+    @Value("${kafka.attempt.await.timeMs:3000}")
+    private int timePerAttemptMillis;
+    @Value("${kafka.attempt.count:5}")
+    private int attemptCount;
+
     @BeforeAll
     public void waitingKafkaInit() throws Exception {
-        LOGGER.info("waiting 5sec...");
-        Thread.sleep(5000);//value depends on system
+        Properties props = new Properties();
+        props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+        props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+        props.putAll(kafkaAdmin.getConfigurationProperties());
+        org.apache.kafka.clients.consumer.KafkaConsumer<String, String> consumer
+                = new org.apache.kafka.clients.consumer.KafkaConsumer<>(props);
+        final Map<String, List<PartitionInfo>> topics = new HashMap<>(consumer.listTopics());
+        boolean  flag = true;
+        int attempts = 0;
+        while (flag) {
+            flag = topics.keySet().stream().noneMatch("__consumer_offsets"::equals);//last topic in order for init
+            if (flag) {
+                topics.clear();
+                topics.putAll(consumer.listTopics());
+                //value depends on system
+                Thread.sleep(timePerAttemptMillis);
+                attempts++;
+            }
+            if(attempts > attemptCount) {
+                LOGGER.error("Too long topic init -> '__consumer_offsets'. Continue...");
+                break;
+            }
+        }
+        consumer.close();
+
+        LOGGER.info("kafka init was finished...");
     }
 
     @AfterAll

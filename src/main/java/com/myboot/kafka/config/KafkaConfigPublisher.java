@@ -7,6 +7,7 @@ import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -29,6 +30,9 @@ public class KafkaConfigPublisher {
     @Autowired
     KafkaAdmin kafkaAdmin;
 
+    @Value("${kafka.partition.count:5}")
+    int countPartition;
+
     @PostConstruct
     public void init(){
 
@@ -38,7 +42,7 @@ public class KafkaConfigPublisher {
     @Profile({"Publisher"})
     public NewTopic topicForSending() {
         return TopicBuilder.name(Constants.TOPIC_FOR_SENDING)
-                .partitions(5)
+                .partitions(countPartition)
                 .replicas(1)
                 .compact()
                 .build();
@@ -48,7 +52,7 @@ public class KafkaConfigPublisher {
     @Profile({"Publisher"})
     public NewTopic topicForReply() {
         return TopicBuilder.name(Constants.REPLY_TOPIC_FOR_SENDING)
-                .partitions(5)
+                .partitions(countPartition)
                 .replicas(1)
                 .compact()
                 .build();
