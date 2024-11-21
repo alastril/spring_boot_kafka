@@ -2,7 +2,7 @@ package com.myboot.web.controllers;
 
 import com.myboot.entity.User;
 import com.myboot.request.RequestDate;
-import com.myboot.web.services.HibernateService;
+import com.myboot.services.HibernateService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +25,7 @@ import java.util.List;
 @Profile({"Hibernate"})
 public class ControllerHibernate {
 
-    private Logger logger = LogManager.getLogger(ControllerHibernate.class);
+    private final Logger logger = LogManager.getLogger(ControllerHibernate.class);
     @Autowired
     private HibernateService hibernateService;
 

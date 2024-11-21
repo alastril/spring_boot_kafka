@@ -35,9 +35,8 @@ import org.testcontainers.shaded.org.awaitility.Awaitility;
 import java.time.Duration;
 import java.util.*;
 
-@SpringBootTest(classes = {Application.class})
+@SpringBootTest
 @AutoConfigureMockMvc
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @ActiveProfiles(profiles={"Publisher","Consumer","test"})
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ContextConfiguration(initializers = ConfigTestComposeFile.class)
@@ -81,6 +80,11 @@ public class KafkaIntegrationTest {
 
     @BeforeAll
     public void waitingKafkaInit() throws Exception {
+        awaitKafkaInit();
+        LOGGER.info("kafka init was finished...");
+    }
+
+    private void awaitKafkaInit() throws Exception {
         Properties props = new Properties();
         props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
         props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
@@ -98,15 +102,16 @@ public class KafkaIntegrationTest {
                 //value depends on system
                 Thread.sleep(timePerAttemptMillis);
                 attempts++;
+            } else {
+                //need time for __consumer_offsets - topic init, without which kafka test not work properly
+                Thread.sleep(timePerAttemptMillis);
             }
             if(attempts > attemptCount) {
-                LOGGER.error("Too long topic init -> '__consumer_offsets'. Continue...");
+                LOGGER.error("Too long topic init -> '__consumer_offsets'. Increase 'timePerAttemptMillis'. Continue...");
                 break;
             }
         }
         consumer.close();
-
-        LOGGER.info("kafka init was finished...");
     }
 
     @AfterAll

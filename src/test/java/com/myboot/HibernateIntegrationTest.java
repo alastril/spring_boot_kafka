@@ -34,9 +34,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 
-@SpringBootTest(classes = Application.class)
+@SpringBootTest
 @AutoConfigureMockMvc
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @ActiveProfiles(profiles = {"Hibernate", "test"})
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ContextConfiguration(initializers = ConfigTestComposeFile.class)
@@ -64,7 +63,7 @@ public class HibernateIntegrationTest {
     @BeforeAll
     public void init() throws Exception {
         requestDate.setDirection(SortDirection.DESC);
-        requestDate.setFieldsSorted(Arrays.asList("dateCreation","id"));
+        requestDate.setFieldsSorted(Arrays.asList("dateCreation", "id"));
     }
 
     @AfterAll
@@ -76,7 +75,7 @@ public class HibernateIntegrationTest {
         if (kafkaContainer != null) {
             kafkaContainer.stop();
         }
-        if(dockerComposeContainer != null) {
+        if (dockerComposeContainer != null) {
             dockerComposeContainer.stop();
         }
         LOGGER.debug("Docker containers stopped!");
@@ -90,7 +89,8 @@ public class HibernateIntegrationTest {
         MvcResult resultActions = mockMvc.perform(MockMvcRequestBuilders.get("/hyber/users")
                 .contentType("application/json")
                 .content(objectMapper.writeValueAsString(requestDate))).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
-        List<User> users = objectMapper.readValue(resultActions.getResponse().getContentAsString(), new TypeReference<>() {});
+        List<User> users = objectMapper.readValue(resultActions.getResponse().getContentAsString(), new TypeReference<>() {
+        });
 
         Assert.isTrue(users.size() == 2, "Unexpected list size!");
         users.forEach(user ->
@@ -105,7 +105,8 @@ public class HibernateIntegrationTest {
         MvcResult resultActions = mockMvc.perform(MockMvcRequestBuilders.get("/hyber/users")
                 .contentType("application/json")
                 .content(objectMapper.writeValueAsString(requestDate))).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
-        List<User> users = objectMapper.readValue(resultActions.getResponse().getContentAsString(), new TypeReference<>() {});
+        List<User> users = objectMapper.readValue(resultActions.getResponse().getContentAsString(), new TypeReference<>() {
+        });
 
         Assert.isTrue(users.size() == 1, "Unexpected list size = " + users.size());
         users.forEach(user ->
@@ -115,7 +116,8 @@ public class HibernateIntegrationTest {
         resultActions = mockMvc.perform(MockMvcRequestBuilders.get("/hyber/users")
                 .contentType("application/json")
                 .content(objectMapper.writeValueAsString(requestDate))).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
-        users = objectMapper.readValue(resultActions.getResponse().getContentAsString(), new TypeReference<>() {});
+        users = objectMapper.readValue(resultActions.getResponse().getContentAsString(), new TypeReference<>() {
+        });
 
         Assert.isTrue(users.size() == 1, "Unexpected list size = " + users.size());
         users.forEach(user ->
@@ -130,7 +132,8 @@ public class HibernateIntegrationTest {
         MvcResult resultActions = mockMvc.perform(MockMvcRequestBuilders.get("/hyber/users/before")
                 .contentType("application/json")
                 .content(objectMapper.writeValueAsString(requestDate))).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
-        List<User> users = objectMapper.readValue(resultActions.getResponse().getContentAsString(), new TypeReference<>() {});
+        List<User> users = objectMapper.readValue(resultActions.getResponse().getContentAsString(), new TypeReference<>() {
+        });
 
         Assert.isTrue(users.size() == 3, "Unexpected list size = " + users.size());
         users.forEach(user ->
@@ -146,7 +149,8 @@ public class HibernateIntegrationTest {
         MvcResult resultActions = mockMvc.perform(MockMvcRequestBuilders.get("/hyber/users/before")
                 .contentType("application/json")
                 .content(objectMapper.writeValueAsString(requestDate))).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
-        List<User> users = objectMapper.readValue(resultActions.getResponse().getContentAsString(), new TypeReference<>() {});
+        List<User> users = objectMapper.readValue(resultActions.getResponse().getContentAsString(), new TypeReference<>() {
+        });
 
         Assert.isTrue(users.size() == 2, "Unexpected list size = " + users.size());
         users.forEach(user ->
@@ -156,7 +160,8 @@ public class HibernateIntegrationTest {
         resultActions = mockMvc.perform(MockMvcRequestBuilders.get("/hyber/users/before")
                 .contentType("application/json")
                 .content(objectMapper.writeValueAsString(requestDate))).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
-        users = objectMapper.readValue(resultActions.getResponse().getContentAsString(), new TypeReference<>() {});
+        users = objectMapper.readValue(resultActions.getResponse().getContentAsString(), new TypeReference<>() {
+        });
 
         Assert.isTrue(users.size() == 1, "Unexpected list size = " + users.size());
         users.forEach(user ->
@@ -174,12 +179,13 @@ public class HibernateIntegrationTest {
         MvcResult resultActions = mockMvc.perform(MockMvcRequestBuilders.get("/hyber/users/between")
                 .contentType("application/json")
                 .content(objectMapper.writeValueAsString(requestDate))).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
-        List<User> users = objectMapper.readValue(resultActions.getResponse().getContentAsString(), new TypeReference<>() {});
+        List<User> users = objectMapper.readValue(resultActions.getResponse().getContentAsString(), new TypeReference<>() {
+        });
 
         Assert.isTrue(users.size() == 4, "Unexpected list size = " + users.size());
         users.forEach(user -> {
-                Assert.isTrue(user.getDateCreation().compareTo(requestDate.getDateTo()) <= 0, "Wrong object dateTo :" + user);
-                Assert.isTrue(user.getDateCreation().compareTo(requestDate.getDateFrom()) >= 0, "Wrong object dateFrom :" + user);
+            Assert.isTrue(user.getDateCreation().compareTo(requestDate.getDateTo()) <= 0, "Wrong object dateTo :" + user);
+            Assert.isTrue(user.getDateCreation().compareTo(requestDate.getDateFrom()) >= 0, "Wrong object dateFrom :" + user);
         });
 
     }
@@ -195,7 +201,8 @@ public class HibernateIntegrationTest {
         MvcResult resultActions = mockMvc.perform(MockMvcRequestBuilders.get("/hyber/users/between")
                 .contentType("application/json")
                 .content(objectMapper.writeValueAsString(requestDate))).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
-        List<User> users = objectMapper.readValue(resultActions.getResponse().getContentAsString(), new TypeReference<>() {});
+        List<User> users = objectMapper.readValue(resultActions.getResponse().getContentAsString(), new TypeReference<>() {
+        });
 
         Assert.isTrue(users.size() == 3, "Unexpected list size = " + users.size());
         users.forEach(user -> {
@@ -207,7 +214,8 @@ public class HibernateIntegrationTest {
         resultActions = mockMvc.perform(MockMvcRequestBuilders.get("/hyber/users/between")
                 .contentType("application/json")
                 .content(objectMapper.writeValueAsString(requestDate))).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
-        users = objectMapper.readValue(resultActions.getResponse().getContentAsString(), new TypeReference<>() {});
+        users = objectMapper.readValue(resultActions.getResponse().getContentAsString(), new TypeReference<>() {
+        });
 
         Assert.isTrue(users.size() == 1, "Unexpected list size = " + users.size());
         users.forEach(user -> {

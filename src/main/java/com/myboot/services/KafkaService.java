@@ -1,4 +1,4 @@
-package com.myboot.web.services;
+package com.myboot.services;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.myboot.entity.MessageSimple;
