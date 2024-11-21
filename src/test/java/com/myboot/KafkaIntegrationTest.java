@@ -95,9 +95,16 @@ public class KafkaIntegrationTest {
             if (flag) {
                 topics.clear();
                 topics.putAll(consumer.listTopics());
+                LOGGER.error("topics="  + topics.keySet());
                 //value depends on system
                 Thread.sleep(timePerAttemptMillis);
                 attempts++;
+            } else {
+                topics.values().forEach(p -> LOGGER.error("topics1="  + p.stream().count()));
+                Thread.sleep(2000);
+                topics.clear();
+                topics.putAll(consumer.listTopics());
+                topics.values().forEach(p -> LOGGER.error("topics2="  + p.stream().count()));
             }
             if(attempts > attemptCount) {
                 LOGGER.error("Too long topic init -> '__consumer_offsets'. Continue...");
