@@ -1,4 +1,4 @@
-package com.myboot.web.services;
+package com.myboot.services;
 
 import com.myboot.entity.User;
 import com.myboot.repository.UserRepository;

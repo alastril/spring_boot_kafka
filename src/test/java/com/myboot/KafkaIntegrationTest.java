@@ -35,9 +35,8 @@ import org.testcontainers.shaded.org.awaitility.Awaitility;
 import java.time.Duration;
 import java.util.*;
 
-@SpringBootTest(classes = {Application.class})
+@SpringBootTest
 @AutoConfigureMockMvc
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @ActiveProfiles(profiles={"Publisher","Consumer","test"})
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ContextConfiguration(initializers = ConfigTestComposeFile.class)
@@ -81,6 +80,11 @@ public class KafkaIntegrationTest {
 
     @BeforeAll
     public void waitingKafkaInit() throws Exception {
+        awaitKafkaInit();
+        LOGGER.info("kafka init was finished...");
+    }
+
+    private void awaitKafkaInit() throws Exception {
         Properties props = new Properties();
         props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
         props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
@@ -95,25 +99,19 @@ public class KafkaIntegrationTest {
             if (flag) {
                 topics.clear();
                 topics.putAll(consumer.listTopics());
-                LOGGER.error("topics="  + topics.keySet());
                 //value depends on system
                 Thread.sleep(timePerAttemptMillis);
                 attempts++;
             } else {
-                topics.values().forEach(p -> LOGGER.error("topics1="  + p.stream().count()));
-                Thread.sleep(2000);
-                topics.clear();
-                topics.putAll(consumer.listTopics());
-                topics.values().forEach(p -> LOGGER.error("topics2="  + p.stream().count()));
+                //need time for __consumer_offsets - topic init, without which kafka test not work properly
+                Thread.sleep(timePerAttemptMillis);
             }
             if(attempts > attemptCount) {
-                LOGGER.error("Too long topic init -> '__consumer_offsets'. Continue...");
+                LOGGER.error("Too long topic init -> '__consumer_offsets'. Increase 'timePerAttemptMillis'. Continue...");
                 break;
             }
         }
         consumer.close();
-
-        LOGGER.info("kafka init was finished...");
     }
 
     @AfterAll
