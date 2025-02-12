@@ -35,25 +35,12 @@ import org.testcontainers.shaded.org.awaitility.Awaitility;
 import java.time.Duration;
 import java.util.*;
 
-@SpringBootTest
-@AutoConfigureMockMvc
 @ActiveProfiles(profiles={"Publisher","Consumer","test"})
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@ContextConfiguration(initializers = ConfigTestComposeFile.class)
-public class KafkaIntegrationTest {
+public class KafkaIntegrationTest extends  MainTestClass {
 
     private static final Logger LOGGER = LogManager.getLogger(KafkaIntegrationTest.class);
     @Autowired
     private MockMvc mockMvc;
-
-    @Autowired(required = false)
-    MySQLContainer mySQLContainer;
-
-    @Autowired(required = false)
-    KafkaContainer kafkaContainer;
-
-    @Autowired(required = false)
-    DockerComposeContainer dockerComposeContainer;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -112,21 +99,6 @@ public class KafkaIntegrationTest {
             }
         }
         consumer.close();
-    }
-
-    @AfterAll
-    public void destroy() throws Exception {
-        LOGGER.debug("Stopping docker containers...");
-        if (mySQLContainer != null) {
-            mySQLContainer.stop();
-        }
-        if (kafkaContainer != null) {
-            kafkaContainer.stop();
-        }
-        if(dockerComposeContainer != null) {
-            dockerComposeContainer.stop();
-        }
-        LOGGER.debug("Docker containers stopped!");
     }
 
     @Test

@@ -50,7 +50,7 @@ public class ControllerHibernate {
     @GetMapping(path = "/users/between")
     @ResponseBody
     public ResponseEntity<List<User>> getUserByDateFilterBetween(@RequestBody RequestDate requestDate) {
-        logger.debug("Message object from body {}", requestDate);
+        logger.debug("Message object from body Between {}", requestDate);
         return new ResponseEntity<>(hibernateService.getUsersSliceByDateCreatedBetween(
                 PageRequest.of(requestDate.getPage(), requestDate.getCountItemsPerPage(), Sort.by(Sort.Direction.fromString(requestDate.getDirection().name()),requestDate.getFieldsSorted().toArray(new String[0]))),
                 requestDate.getDateFrom(), requestDate.getDateTo()), HttpStatus.OK);

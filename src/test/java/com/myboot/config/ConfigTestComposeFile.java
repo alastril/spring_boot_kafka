@@ -18,7 +18,7 @@ import java.io.File;
 public class ConfigTestComposeFile implements
         ApplicationContextInitializer<ConfigurableApplicationContext> {
 
-    private Logger logger = LogManager.getLogger(ConfigTestComposeFile.class);
+    private Logger LOGGER = LogManager.getLogger(ConfigTestComposeFile.class);
 
     @Container
     public  DockerComposeContainer dockerComposeContainer = new DockerComposeContainer( new File("src/test/resources/docker-compose-test.yml"))

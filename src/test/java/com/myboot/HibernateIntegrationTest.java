@@ -2,7 +2,6 @@ package com.myboot;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.myboot.config.ConfigTestComposeFile;
 import com.myboot.entity.User;
 import com.myboot.request.RequestDate;
 import com.myboot.request.SortDirection;
@@ -11,21 +10,13 @@ import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.util.Assert;
-import org.testcontainers.containers.DockerComposeContainer;
-import org.testcontainers.containers.KafkaContainer;
-import org.testcontainers.containers.MySQLContainer;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -34,12 +25,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 
-@SpringBootTest
-@AutoConfigureMockMvc
 @ActiveProfiles(profiles = {"Hibernate", "test"})
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@ContextConfiguration(initializers = ConfigTestComposeFile.class)
-public class HibernateIntegrationTest {
+public class HibernateIntegrationTest extends MainTestClass {
 
     private static final Logger LOGGER = LogManager.getLogger(HibernateIntegrationTest.class);
     @Autowired
@@ -51,34 +38,10 @@ public class HibernateIntegrationTest {
     @Autowired
     RequestDate requestDate;
 
-    @Autowired(required = false)
-    MySQLContainer mySQLContainer;
-
-    @Autowired(required = false)
-    KafkaContainer kafkaContainer;
-
-    @Autowired(required = false)
-    DockerComposeContainer dockerComposeContainer;
-
     @BeforeAll
     public void init() throws Exception {
         requestDate.setDirection(SortDirection.DESC);
         requestDate.setFieldsSorted(Arrays.asList("dateCreation", "id"));
-    }
-
-    @AfterAll
-    public void destroy() throws Exception {
-        LOGGER.debug("Stopping docker containers...");
-        if (mySQLContainer != null) {
-            mySQLContainer.stop();
-        }
-        if (kafkaContainer != null) {
-            kafkaContainer.stop();
-        }
-        if (dockerComposeContainer != null) {
-            dockerComposeContainer.stop();
-        }
-        LOGGER.debug("Docker containers stopped!");
     }
 
     @Test
