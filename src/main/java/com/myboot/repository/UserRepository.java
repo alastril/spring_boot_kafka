@@ -20,7 +20,7 @@ import java.util.List;
 public interface UserRepository extends PagingAndSortingRepository<User, Long>, CrudRepository<User, Long> {
     Page<User> findAllByDateCreation(Pageable pageable, ZonedDateTime dateCreation);
     Slice<User> findAllSliceByDateCreationBefore(Pageable pageable, ZonedDateTime dateCreationBefore);
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Lock(LockModeType.OPTIMISTIC)
     public List<User> findByDateCreationBetween(Pageable pageable, ZonedDateTime dateCreationStart, ZonedDateTime dateCreationEnd);
 
     @Modifying

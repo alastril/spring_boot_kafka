@@ -22,9 +22,9 @@ public class ConfigTestComposeFile implements
 
     @Container
     public  DockerComposeContainer dockerComposeContainer = new DockerComposeContainer( new File("src/test/resources/docker-compose-test.yml"))
-            .withExposedService("zookeeper_1",2181, Wait.forListeningPort())
+            .withExposedService("zookeeper_1",2182, Wait.forListeningPort())
             .withExposedService("mysql_1",3306, Wait.forListeningPort())
-            .withExposedService("kafka_1",9092, Wait.forListeningPort());
+            .withExposedService("kafka_1",9094, Wait.forListeningPort());
 
     @Override
     public void initialize(ConfigurableApplicationContext applicationContext) {

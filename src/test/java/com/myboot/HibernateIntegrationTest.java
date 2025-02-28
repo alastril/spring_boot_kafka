@@ -3,11 +3,11 @@ package com.myboot;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.myboot.entity.User;
+import com.myboot.repository.UserRepository;
 import com.myboot.request.RequestDate;
 import com.myboot.request.SortDirection;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +37,9 @@ public class HibernateIntegrationTest extends MainTestClass {
 
     @Autowired
     RequestDate requestDate;
+
+    @Autowired
+    UserRepository userRepository;
 
     @BeforeAll
     public void init() throws Exception {
@@ -185,5 +188,41 @@ public class HibernateIntegrationTest extends MainTestClass {
             Assert.isTrue(user.getDateCreation().compareTo(requestDate.getDateTo()) <= 0, "Wrong object dateTo :" + user);
             Assert.isTrue(user.getDateCreation().compareTo(requestDate.getDateFrom()) >= 0, "Wrong object dateFrom :" + user);
         });
+    }
+
+    @Test
+    void checkAddingUser() throws Exception {
+        User user = User.builder().userName("testName").orderList(List.of()).
+                dateCreation(LocalDate.parse("1999-01-30", DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+                        .atTime(LocalDateTime.MIN.toLocalTime()).atZone(ZoneId.systemDefault())).build();
+        MvcResult resultActions = mockMvc.perform(MockMvcRequestBuilders.post("/hyber/users")
+                .contentType("application/json")
+                .content(objectMapper.writeValueAsString(user))).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        User userResult = objectMapper.readValue(resultActions.getResponse().getContentAsString(), User.class);
+        user.setId(userResult.getId());
+
+        Assert.isTrue(userResult.equals(user), "User wasn't added");
+        requestDate.setDate(user.getDateCreation());
+        resultActions = mockMvc.perform(MockMvcRequestBuilders.get("/hyber/users")
+                .contentType("application/json")
+                .content(objectMapper.writeValueAsString(requestDate))).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        List<User> users = objectMapper.readValue(resultActions.getResponse().getContentAsString(), new TypeReference<>() {
+        });
+        Assert.isTrue(users.size() == 1, "wrong count users was added");
+        users.forEach(u ->
+                Assert.isTrue(u.equals(user), "users not equal:" + u));
+        userRepository.delete(user);//cleanup
+    }
+
+    @Test
+    public void checkUserOptimisticLockTest() throws Exception {
+        User user = User.builder().id(1L).userName("testName").orderList(List.of()).version(1).
+                dateCreation(LocalDate.parse("1999-01-30", DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+                        .atTime(LocalDateTime.MIN.toLocalTime()).atZone(ZoneId.systemDefault())).build();
+        MvcResult resultActions = mockMvc.perform(MockMvcRequestBuilders.post("/hyber/users")
+                .contentType("application/json")
+                .content(objectMapper.writeValueAsString(user))).andExpect(MockMvcResultMatchers.status().isBadRequest()).andReturn();
+        Assert.isTrue("Row was updated or deleted by another transaction (or unsaved-value mapping was incorrect)".
+                equals(resultActions.getResponse().getContentAsString()), "Bad Exception handle");
     }
 }

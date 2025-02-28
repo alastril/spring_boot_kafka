@@ -1,6 +1,5 @@
 package com.myboot.web.controllers;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.myboot.entity.MessageSimple;
 import com.myboot.services.KafkaService;
 import org.apache.logging.log4j.LogManager;
@@ -21,21 +20,21 @@ import java.util.List;
 @RequestMapping("/kafka")
 @Profile({"Publisher"})
 public class ControllerKafka {
-    private Logger logger = LogManager.getLogger(ControllerKafka.class);
+    private static final Logger LOGGER = LogManager.getLogger(ControllerKafka.class);
     @Autowired
     private KafkaService kafkaService;
 
     @PostMapping(path = "/send")
-    public ResponseEntity<?> postMessageToKafka(@RequestBody MessageSimple message) throws JsonProcessingException {
-        logger.debug("Message object from body {}", message);
+    public ResponseEntity<String> postMessageToKafka(@RequestBody MessageSimple message) {
+        LOGGER.debug("Message object from body {}", message);
         kafkaService.sendObjectToKafka(message);
         return new ResponseEntity<>("Message was added success!", HttpStatus.OK);
     }
 
 
     @PostMapping(path = "/sendToBatch")
-    public ResponseEntity<?> postMessageToKafkaBatch(@RequestBody List<MessageSimple> messages) throws JsonProcessingException {
-        logger.debug("Message object from body {}", messages);
+    public ResponseEntity<String> postMessageToKafkaBatch(@RequestBody List<MessageSimple> messages) {
+        LOGGER.debug("Message batch object from body {}", messages);
         kafkaService.sendObjectToKafkaBatch(messages);
         return new ResponseEntity<>("Message was added success!", HttpStatus.OK);
     }

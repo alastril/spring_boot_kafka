@@ -25,14 +25,14 @@ import java.util.List;
 @Profile({"Hibernate"})
 public class ControllerHibernate {
 
-    private final Logger logger = LogManager.getLogger(ControllerHibernate.class);
+    private static final Logger LOGGER = LogManager.getLogger(ControllerHibernate.class);
     @Autowired
     private HibernateService hibernateService;
 
     @GetMapping(path = "/users")
     @ResponseBody
     public ResponseEntity<List<User>> getUsersByDateCreated(@RequestBody RequestDate requestDate) {
-        logger.debug("Message object from body {}", requestDate);
+        LOGGER.debug("Message date_created object from body {}", requestDate);
         return new ResponseEntity<>(hibernateService.getUsersByDateCreated(
                 PageRequest.of(requestDate.getPage(), requestDate.getCountItemsPerPage(), Sort.by(Sort.Direction.fromString(requestDate.getDirection().name()),requestDate.getFieldsSorted().toArray(new String[0]))),
                 requestDate.getDate()), HttpStatus.OK);
@@ -41,7 +41,7 @@ public class ControllerHibernate {
     @GetMapping(path = "/users/before")
     @ResponseBody
     public ResponseEntity<List<User>> getUserByDateFilterBefore(@RequestBody RequestDate requestDate) {
-        logger.debug("Message object from body {}", requestDate);
+        LOGGER.debug("Message before object from body {}", requestDate);
         return new ResponseEntity<>(hibernateService.getUsersSliceByDateCreatedBefore(
                 PageRequest.of(requestDate.getPage(), requestDate.getCountItemsPerPage(), Sort.by(Sort.Direction.fromString(requestDate.getDirection().name()),requestDate.getFieldsSorted().toArray(new String[0]))),
                 requestDate.getDate()), HttpStatus.OK);
@@ -50,16 +50,16 @@ public class ControllerHibernate {
     @GetMapping(path = "/users/between")
     @ResponseBody
     public ResponseEntity<List<User>> getUserByDateFilterBetween(@RequestBody RequestDate requestDate) {
-        logger.debug("Message object from body Between {}", requestDate);
+        LOGGER.debug("Message object from body Between {}", requestDate);
         return new ResponseEntity<>(hibernateService.getUsersSliceByDateCreatedBetween(
                 PageRequest.of(requestDate.getPage(), requestDate.getCountItemsPerPage(), Sort.by(Sort.Direction.fromString(requestDate.getDirection().name()),requestDate.getFieldsSorted().toArray(new String[0]))),
                 requestDate.getDateFrom(), requestDate.getDateTo()), HttpStatus.OK);
     }
 
     @PostMapping(path = "/users")
-    public ResponseEntity<?> postMessageToKafka(@RequestBody User user) {
-        logger.debug("Message object from body {}", user);
-        hibernateService.addUser(user);
-        return new ResponseEntity<>("Added", HttpStatus.OK);
+    public ResponseEntity<User> postMessageToDB(@RequestBody User user) {
+        LOGGER.debug("Message to DB object from body {}", user);
+        User userRes = hibernateService.addUser(user);
+        return new ResponseEntity<>(userRes, HttpStatus.OK);
     }
 }
