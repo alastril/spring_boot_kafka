@@ -1,20 +1,12 @@
 package com.myboot.entity;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.myboot.converters.ZonedDateTimeDeserializer;
 import com.myboot.converters.ZonedDateTimeSerializer;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import lombok.*;
 
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -24,10 +16,11 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 @Builder
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class User {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
-    long id;
+    Long id;
     @Column(name = "user_name")
     String userName;
 
@@ -39,4 +32,8 @@ public class User {
     @JsonDeserialize(using = ZonedDateTimeDeserializer.class)
     @JsonSerialize(using = ZonedDateTimeSerializer.class)
     ZonedDateTime dateCreation;
+
+    @Version
+    @Column(columnDefinition = "int default 0")
+    long version;
 }

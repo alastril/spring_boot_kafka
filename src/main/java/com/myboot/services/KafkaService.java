@@ -1,8 +1,7 @@
 package com.myboot.services;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.myboot.entity.MessageSimple;
-import com.myboot.kafka.KafkaPublisher;
+import com.myboot.kafka.KafkaPublisherComponent;
 import com.myboot.util.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
@@ -15,13 +14,13 @@ import java.util.List;
 public class KafkaService {
 
     @Autowired
-    KafkaPublisher kafkaPublisher;
+    KafkaPublisherComponent kafkaPublisherComponent;
 
-    public void sendObjectToKafka(MessageSimple message) throws JsonProcessingException {
-        kafkaPublisher.sendToKafkaObjectAsString(Constants.TOPIC_FOR_SENDING, message);
+    public void sendObjectToKafka(MessageSimple message) {
+        kafkaPublisherComponent.sendToKafkaObjectAsString(Constants.TOPIC_FOR_SENDING, message);
     }
 
-    public void sendObjectToKafkaBatch(List<MessageSimple> message) throws JsonProcessingException {
-        kafkaPublisher.sendToKafkaObjectAsStringBatch(Constants.TOPIC_FOR_SENDING, message);
+    public void sendObjectToKafkaBatch(List<MessageSimple> message) {
+        kafkaPublisherComponent.sendToKafkaObjectAsStringBatch(Constants.TOPIC_FOR_SENDING_BATCH, message);
     }
 }

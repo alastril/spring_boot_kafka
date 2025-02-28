@@ -8,13 +8,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
-@Transactional(isolation = Isolation.READ_COMMITTED)
+@Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRES_NEW)
 public class HibernateService {
 
     private Logger logger = LogManager.getLogger(HibernateService.class);
@@ -38,19 +40,14 @@ public class HibernateService {
         try {
             return userRepository.findByDateCreationBetween(pageable, dateCreationStart, dateCreationEnd);
         } catch (Exception e) {
-            logger.error("error get user {}", e.getMessage());
-            throw new RuntimeException(e);
+            logger.error("Error on getting user {}", e.getMessage());
+            return new ArrayList<>();
         }
     }
 
-    public void addUser(User user) {
-        try {
-            logger.info("adding user {}", user);
-            userRepository.updateUser(user);
-            Thread.sleep(100);
-        } catch (Exception e) {
-            logger.error("error save user {}", e.getMessage());
-            throw new RuntimeException(e);
-        }
+    @Transactional(propagation = Propagation.SUPPORTS)
+    public User addUser(User user) {
+        logger.info("adding user {}", user);
+        return userRepository.save(user);
     }
 }
