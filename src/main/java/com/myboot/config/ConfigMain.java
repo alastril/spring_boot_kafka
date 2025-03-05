@@ -23,5 +23,4 @@ public class ConfigMain {
         objectMapper.registerModule(new JavaTimeModule());
         return objectMapper;
     }
-
 }

@@ -11,12 +11,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -28,6 +23,20 @@ public class ControllerHibernate {
     private static final Logger LOGGER = LogManager.getLogger(ControllerHibernate.class);
     @Autowired
     private HibernateService hibernateService;
+
+    @GetMapping(path = "/users/all")
+    @ResponseBody
+    public ResponseEntity<List<User>> getUsersAll() {
+        LOGGER.debug("getAllUsers body");
+        return new ResponseEntity<>(hibernateService.findAll(), HttpStatus.OK);
+    }
+
+    @GetMapping(path = "/users/{id}")
+    @ResponseBody
+    public ResponseEntity<User> getUsersAll(@PathVariable Long id) {
+        LOGGER.debug("getUser by id {}", id);
+        return new ResponseEntity<>(hibernateService.findById(id), HttpStatus.OK);
+    }
 
     @GetMapping(path = "/users")
     @ResponseBody

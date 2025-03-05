@@ -1,4 +1,16 @@
 services:
+  redis:
+    image: redis:latest
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - /path/to/local/dаta:/root/redis
+      - /path/to/local/redis.conf:/usr/local/etc/redis/redis.conf
+    environment:
+      REDIS_PASSWORD: root
+      REDIS_PORT: 6379
+      REDIS_DATABASES: 16
   sonarqube:
     image: sonarqube:lts-community
     depends_on:
@@ -33,7 +45,6 @@ services:
       ZOOKEEPER_TICK_TIME: 2000
     ports:
       - '2181:2181'
-  
   kafka:
     image: confluentinc/cp-kafka:latest
     depends_on:
@@ -61,11 +72,11 @@ services:
       - '3306:3306'
     volumes:
       - mysql:/var/lib/mysql
-  publisher:
+  sb_kafka_pub:
     depends_on:
       - mysql
       - kafka
-    container_name: publisher
+    container_name: sb_kafka_pub
     build:
       dockerfile: Dockerfile
     image: sb_kafka_pub:latest
@@ -73,12 +84,12 @@ services:
       - '8081:8081'
     environment:
       SPRING_PROFILES_ACTIVE: Publisher, docker
-  consumer:
+  sb_kafka_cons:
     depends_on:
       - mysql
       - kafka
-      - publisher
-    container_name: consumer
+      - sb_kafka_pub
+    container_name: sb_kafka_cons
     build:
       dockerfile: Dockerfile
     image: sb_kafka_cons:latest
@@ -86,23 +97,18 @@ services:
       - '8082:8082'
     environment:
       SPRING_PROFILES_ACTIVE: Consumer, docker
-  hibernate:
+  sb_kafka_hibernate:
     depends_on:
       - mysql
-      - publisher
-    container_name: hibernate
+      - redis
+    container_name: sb_kafka_hibernate
     build:
       dockerfile: Dockerfile
-    image: sb_hibernate:latest
+    image: sb_kafka_hibernate:latest
     ports:
       - '8083:8083'
     environment:
       SPRING_PROFILES_ACTIVE: Hibernate, docker
-#    networks:
-#      - spring-cloud-network
-#networks:
-#  spring-cloud-network:
-#    driver: bridge
 volumes:
   mysql:
     driver: local

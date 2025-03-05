@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-@Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRES_NEW)
+@Transactional(isolation = Isolation.READ_COMMITTED)
 public class HibernateService {
 
     private Logger logger = LogManager.getLogger(HibernateService.class);
@@ -26,6 +26,9 @@ public class HibernateService {
 
     public User findById(long id) {
         return userRepository.findById(id).orElse(null);
+    }
+    public List<User> findAll() {
+        return (List<User>) userRepository.findAll();
     }
 
     public List<User> getUsersByDateCreated(Pageable pageable, ZonedDateTime dateCreated) {
