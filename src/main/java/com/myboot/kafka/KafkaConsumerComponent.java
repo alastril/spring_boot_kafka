@@ -49,7 +49,6 @@ public class KafkaConsumerComponent {
                                             .body(element.getBody().toUpperCase()).build();
                                 }).toList(), kafkaMess.getHeaders()))
         );
-
         LOGGER.debug("End batch work!");
         return modifiedMyMess;
     }
