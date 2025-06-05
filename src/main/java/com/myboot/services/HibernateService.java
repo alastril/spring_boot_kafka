@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZonedDateTime;
@@ -48,9 +47,13 @@ public class HibernateService {
         }
     }
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     public User addUser(User user) {
-        logger.info("adding user {}", user);
+        logger.info("adding user {}", user.toString());
         return userRepository.save(user);
+    }
+
+    public int updateUser(User user) {
+        logger.info("updating user {}", user.toString());
+        return userRepository.updateUser(user);
     }
 }
