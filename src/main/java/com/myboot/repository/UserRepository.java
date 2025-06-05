@@ -24,9 +24,9 @@ public interface UserRepository extends PagingAndSortingRepository<User, Long>, 
     @Lock(LockModeType.OPTIMISTIC)
     List<User> findByDateCreationBetween(Pageable pageable, ZonedDateTime dateCreationStart, ZonedDateTime dateCreationEnd);
 
-    @Modifying
+    @Modifying // need for INSERT, UPDATE, DELETE - Queries
     @Query( value = "UPDATE User SET userName=:#{#user.userName}, dateCreation=:#{#user.dateCreation} where id=:#{#user.id}")
-    void updateUser(@Param("user")User entity);
+    int updateUser(@Param("user")User entity);
 
     @Override
     @EntityGraph(attributePaths = {"orderList"})//in one select will get all orders for every user

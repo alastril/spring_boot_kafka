@@ -33,7 +33,7 @@ public class ControllerHibernate {
 
     @GetMapping(path = "/users/{id}")
     @ResponseBody
-    public ResponseEntity<User> getUsersAll(@PathVariable Long id) {
+    public ResponseEntity<User> getUserById(@PathVariable Long id) {
         LOGGER.debug("getUser by id {}", id);
         return new ResponseEntity<>(hibernateService.findById(id), HttpStatus.OK);
     }
@@ -66,9 +66,15 @@ public class ControllerHibernate {
     }
 
     @PostMapping(path = "/users")
-    public ResponseEntity<User> postMessageToDB(@RequestBody User user) {
-        LOGGER.debug("Message to DB object from body {}", user);
+    public ResponseEntity<User> postUserToDB(@RequestBody User user) {
+        LOGGER.debug("User to DB object from body {}", user);
         User userRes = hibernateService.addUser(user);
         return new ResponseEntity<>(userRes, HttpStatus.OK);
+    }
+
+    @PutMapping(path = "/users")
+    public ResponseEntity<Integer> putUserToDB(@RequestBody User user) {
+        LOGGER.debug("Put User to DB object from body {}", user);
+        return new ResponseEntity<>(hibernateService.updateUser(user), HttpStatus.OK);
     }
 }

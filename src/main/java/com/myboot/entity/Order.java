@@ -7,6 +7,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import java.time.LocalDateTime;
@@ -19,6 +20,7 @@ import java.util.List;
 @Table(name="Orders")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @org.hibernate.annotations.Cache(region = "order",usage = CacheConcurrencyStrategy.READ_WRITE)
+@ToString
 public class Order {
 
     @Id
@@ -43,5 +45,6 @@ public class Order {
 
     @ManyToOne(cascade = CascadeType.ALL)
     @JsonBackReference
+    @ToString.Exclude
     User customer;
 }

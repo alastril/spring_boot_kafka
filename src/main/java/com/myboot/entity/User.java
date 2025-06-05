@@ -8,10 +8,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.myboot.converters.ZonedDateTimeDeserializer;
 import com.myboot.converters.ZonedDateTimeSerializer;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
@@ -25,6 +22,7 @@ import java.util.List;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @org.hibernate.annotations.Cache(region = "user_reg", usage = CacheConcurrencyStrategy.READ_WRITE)
+@ToString
 public class User {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
