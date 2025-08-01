@@ -1,24 +1,18 @@
 package com.myboot;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.myboot.config.KafkaConfig;
 import com.myboot.entity.MessageSimple;
-import com.myboot.kafka.KafkaConsumerComponent;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
+import com.myboot.security.JwtAuthenticationFilter;
+import com.myboot.security.dto.JwtAuthenticationResponseDTO;
+import com.myboot.security.dto.SignInRequestDTO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.kafka.core.KafkaAdmin;
-import org.springframework.messaging.Message;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
-import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.http.HttpHeaders;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.util.Assert;
@@ -27,86 +21,48 @@ import org.testcontainers.shaded.org.awaitility.Awaitility;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
-import java.util.concurrent.*;
+import java.util.concurrent.TimeUnit;
 
-@ActiveProfiles(profiles = {"Publisher", "Consumer", "test"})
-public class KafkaIntegrationTest extends MainTestClass {
+
+class KafkaIntegrationTest extends KafkaConfig {
 
     private static final Logger LOGGER = LogManager.getLogger(KafkaIntegrationTest.class);
-    @Autowired
-    private MockMvc mockMvc;
 
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @MockitoSpyBean
-    private KafkaConsumerComponent consumer;
-
-    @Captor
-    ArgumentCaptor<Message<MessageSimple>> messageArgumentCaptor;
-
-    @Captor
-    ArgumentCaptor<List<Message<List<MessageSimple>>>> messageBatchArgumentCaptor;
-
-    @Autowired
-    KafkaAdmin kafkaAdmin;
-
-    @Value("${kafka.attempt.await.timeSec:3}")
-    private int timePerAttemptSec;
-    @Value("${kafka.test.awaitSec:5}")
-    private int awaitSec;
+    HttpHeaders headers = new HttpHeaders();
 
     @BeforeAll
-    public void waitingKafkaInit() throws Exception {
+    void waitingKafkaInit() throws Exception {
         awaitKafkaInit();
+        SignInRequestDTO signInRequestDTO = SignInRequestDTO.builder().username("Tolya").password("pass").build();
+
+        MvcResult resultActions = getMockMvc().perform(MockMvcRequestBuilders.post("/auth/sign_in")
+                .contentType("application/json")
+                .content(getObjectMapper().writeValueAsString(signInRequestDTO))).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        JwtAuthenticationResponseDTO jwtAuthenticationResponseDTO =
+                getObjectMapper().readValue(resultActions.getResponse().getContentAsString(), JwtAuthenticationResponseDTO.class);
+        headers.add(HttpHeaders.AUTHORIZATION,
+                JwtAuthenticationFilter.BEARER_PREFIX + jwtAuthenticationResponseDTO.getToken());
+
         LOGGER.info("kafka init was finished...");
     }
 
-    public void awaitKafkaInit() throws ExecutionException, InterruptedException {
-        Properties props = new Properties();
-        props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
-        props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
-        props.putAll(kafkaAdmin.getConfigurationProperties());
-        KafkaConsumer<String, String> consumer
-                = new KafkaConsumer<>(props);
-        boolean flag = true;
-        ScheduledExecutorService threadPool = Executors.newSingleThreadScheduledExecutor();
-        while (flag) {
-            flag = threadPool.schedule(checkKafkaInit(consumer), timePerAttemptSec, TimeUnit.SECONDS).get();
-        }
-        consumer.close();
-    }
-
-    private Callable<Boolean> checkKafkaInit(KafkaConsumer<String, String> consumer) {
-        return () -> {
-            boolean flag = consumer.listTopics().keySet().stream().anyMatch("__consumer_offsets"::equals);//last topic in order for init
-            if (flag) {
-                LOGGER.info("topic - '__consumer_offsets' created! Continue...");
-                return false;
-            } else {
-                LOGGER.error("'__consumer_offsets' not created. Another attempt...");
-                return true;
-            }
-        };
-    }
-
     @Test
-    public void checkSendOneMessWithReply() throws Exception {
+    void checkSendOneMessWithReply() throws Exception {
         MessageSimple message = new MessageSimple(1L, "order1");
-        Awaitility.setDefaultTimeout(awaitSec, TimeUnit.SECONDS);
+        Awaitility.setDefaultTimeout(getAwaitSec(), TimeUnit.SECONDS);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/kafka/send")
+        getMockMvc().perform(MockMvcRequestBuilders.post("/kafka/send")
                 .contentType("application/json")
-                .content(objectMapper.writeValueAsString(message))).andExpect(MockMvcResultMatchers.status().isOk());
+                .headers(headers)
+                .content(getObjectMapper().writeValueAsString(message))).andExpect(MockMvcResultMatchers.status().isOk());
 
-        Awaitility.await().atMost(Duration.ofSeconds(awaitSec)).untilAsserted(
+        Awaitility.await().atMost(Duration.ofSeconds(getAwaitSec())).untilAsserted(
                 () -> {
-                    Mockito.verify(consumer).listener(messageArgumentCaptor.capture());
-                    Assert.isTrue(messageArgumentCaptor.getValue().getPayload().getBody().equals(message.getBody()),
+                    Mockito.verify(getConsumer()).listener(getMessageArgumentCaptor().capture());
+                    Assert.isTrue(getMessageArgumentCaptor().getValue().getPayload().getBody().equals(message.getBody()),
                             "Message field must be equal objects");
-                    Mockito.verify(consumer).listenReplyRead(messageArgumentCaptor.capture());
-                    MessageSimple argMessageSimple = messageArgumentCaptor.getValue().getPayload();
+                    Mockito.verify(getConsumer()).listenReplyRead(getMessageArgumentCaptor().capture());
+                    MessageSimple argMessageSimple = getMessageArgumentCaptor().getValue().getPayload();
                     Assert.isTrue(argMessageSimple.getId().equals(message.getId()) &&
                                     argMessageSimple.getBody().equals(message.getBody().toUpperCase()),
                             "Id should be equals!");
@@ -114,27 +70,28 @@ public class KafkaIntegrationTest extends MainTestClass {
     }
 
     @Test
-    public void checkBatchListenerWithReply() throws Exception {
-        Awaitility.setDefaultTimeout(awaitSec, TimeUnit.SECONDS);
+    void checkBatchListenerWithReply() throws Exception {
+        Awaitility.setDefaultTimeout(getAwaitSec(), TimeUnit.SECONDS);
         List<MessageSimple> messages = new ArrayList<>();
         messages.add(new MessageSimple(1L, "order1"));
         messages.add(new MessageSimple(2L, "order2"));
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/kafka/sendToBatch")
+        getMockMvc().perform(MockMvcRequestBuilders.post("/kafka/sendToBatch")
                 .contentType("application/json")
-                .content(objectMapper.writeValueAsString(messages))).andExpect(MockMvcResultMatchers.status().isOk());
+                .headers(headers)
+                .content(getObjectMapper().writeValueAsString(messages))).andExpect(MockMvcResultMatchers.status().isOk());
 
-        Awaitility.await().atMost(Duration.ofSeconds(awaitSec)).untilAsserted(
+        Awaitility.await().atMost(Duration.ofSeconds(getAwaitSec())).untilAsserted(
                 () -> {
-                    Mockito.verify(consumer).batchListener(messageBatchArgumentCaptor.capture());
-                    List<MessageSimple> messageResult = messageBatchArgumentCaptor.getValue().
+                    Mockito.verify(getConsumer()).batchListener(getMessageBatchArgumentCaptor().capture());
+                    List<MessageSimple> messageResult = getMessageBatchArgumentCaptor().getValue().
                             stream().findFirst().get().getPayload();
                     Assert.isTrue(messageResult.size() == 2, "Message list must be 2");
                     messageResult.forEach(element ->
                             Assert.isTrue(messages.contains(element), "element not equal =" + element.toString())
                     );
-                    Mockito.verify(consumer).listenReplyListRead(messageBatchArgumentCaptor.capture());
-                    messageResult = objectMapper.convertValue(messageBatchArgumentCaptor.getValue().stream().findFirst().get().getPayload(),
+                    Mockito.verify(getConsumer()).listenReplyListRead(getMessageBatchArgumentCaptor().capture());
+                    messageResult = getObjectMapper().convertValue(getMessageBatchArgumentCaptor().getValue().stream().findFirst().get().getPayload(),
                             new TypeReference<>() {
                             });
 

@@ -1,0 +1,519 @@
+{
+	"info": {
+		"_postman_id": "8027543d-31fd-4c3d-ab65-1015febff3b6",
+		"name": "spring_boot",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "2313894"
+	},
+	"item": [
+		{
+			"name": "localhost:8081/kafka/send",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"body\":\"test\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8081/kafka/send",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"kafka",
+						"send"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "localhost:8083/hyber/users/all",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8083/hyber/users/all",
+					"host": [
+						"localhost"
+					],
+					"port": "8083",
+					"path": [
+						"hyber",
+						"users",
+						"all"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "localhost:8083/hyber/users/id",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"console.info(pm.collectionVariables.get(\"token\"));"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8083/hyber/users/1",
+					"host": [
+						"localhost"
+					],
+					"port": "8083",
+					"path": [
+						"hyber",
+						"users",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "localhost:8081/kafka/sendToBatch",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[{\r\n    \"body\":\"test\"\r\n},\r\n{\r\n    \"body\":\"test_two\"\r\n},\r\n{\r\n    \"body\":\"test_3\"\r\n}]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8081/kafka/sendToBatch",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"kafka",
+						"sendToBatch"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "localhost:8083/hyber/users",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"date\":\"2023-07-24\",\r\n    \"dateFrom\":\"\",\r\n    \"dateTo\":\"\",\r\n    \"page\": \"0\",\r\n    \"countItemsPerPage\": \"2\",\r\n    \"direction\": \"DESC\",\r\n    \"fieldsSorted\": [\r\n        \"dateCreation\", \"userName\"\r\n    ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8083/hyber/users",
+					"host": [
+						"localhost"
+					],
+					"port": "8083",
+					"path": [
+						"hyber",
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "localhost:8083/hyber/users",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"userName\": \"adminsss2\",\r\n    \"dateCreation\": \"2024-07-24\",\r\n    \"orderList\": [{\"number\":\"weqwe\"},{\"number\":\"weqwe\"}],\r\n    \"version\":1\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8083/hyber/users",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8083",
+					"path": [
+						"hyber",
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "localhost:8083/hyber/users/before",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"date\":\"2023-07-24\",\r\n    \"dateFrom\":\"\",\r\n    \"dateTo\":\"\",\r\n    \"page\": \"0\",\r\n    \"countItemsPerPage\": \"20\",\r\n    \"direction\": \"DESC\",\r\n    \"fieldsSorted\": [\r\n        \"dateCreation\", \"userName\"\r\n    ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8083/hyber/users/before",
+					"host": [
+						"localhost"
+					],
+					"port": "8083",
+					"path": [
+						"hyber",
+						"users",
+						"before"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "localhost:8080/hyber/users/between",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"dateFrom\": \"2023-01-02\",\r\n    \"dateTo\": \"2024-07-29\",\r\n    \"page\": \"0\",\r\n    \"countItemsPerPage\": \"20\",\r\n    \"direction\": \"DESC\",\r\n    \"fieldsSorted\": [\r\n        \"dateCreation\", \"userName\"\r\n    ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8083/hyber/users/between",
+					"host": [
+						"localhost"
+					],
+					"port": "8083",
+					"path": [
+						"hyber",
+						"users",
+						"between"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8083/hyber/users",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"id\": 6,\r\n    \"userName\": \"test User №6\",\r\n    \"dateCreation\": \"2025-05-24\",\r\n    \"orderList\": [{\"number\":\"weqwe\"},{\"number\":\"weqwe\"}]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8083/hyber/users",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8083",
+					"path": [
+						"hyber",
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "sign up, register",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var bodyResp =pm.response.json();\r",
+							"pm.environment.set(\"token\", bodyResp.token);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"username\": \"Tolya\",\r\n\"email\":\"email@com\",\r\n\"password\":\"pass\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8083/auth/sign_up",
+					"host": [
+						"localhost"
+					],
+					"port": "8083",
+					"path": [
+						"auth",
+						"sign_up"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "login",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var bodyResp =pm.response.json();\r",
+							"pm.environment.set(\"token\", bodyResp.token);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"username\": \"Tolya\",\r\n\"password\":\"pass\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8083/auth/sign_in",
+					"host": [
+						"localhost"
+					],
+					"port": "8083",
+					"path": [
+						"auth",
+						"sign_in"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "delete signed up user",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "localhost:8083/auth/delete_user/3",
+					"host": [
+						"localhost"
+					],
+					"port": "8083",
+					"path": [
+						"auth",
+						"delete_user",
+						"3"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:9090/actuator/health",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9090/actuator/health",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9090",
+					"path": [
+						"actuator",
+						"health"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "token",
+			"value": ""
+		}
+	]
+}

@@ -15,3 +15,7 @@ INSERT INTO orders ( number_order, customer_id) VALUES
 ('order_4_1',1),
 ('order_3_1',1),
 ('order_1_2',2);
+TRUNCATE user_security;
+INSERT INTO user_security ( user_name, password, email, role) VALUES
+('admin','$2a$10$pxDnMsgEOeLMMHjepOiGpuIa3dA4fEjOwJuH5m90UBlUJOGIYlfc.','admin@email.com','ROLE_ADMIN'),
+('Tolya','$2a$10$pxDnMsgEOeLMMHjepOiGpuIa3dA4fEjOwJuH5m90UBlUJOGIYlfc.','email@com','ROLE_USER');

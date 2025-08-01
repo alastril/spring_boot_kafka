@@ -23,6 +23,7 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @org.hibernate.annotations.Cache(region = "user_reg", usage = CacheConcurrencyStrategy.READ_WRITE)
 @ToString
+@EqualsAndHashCode
 public class User {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)

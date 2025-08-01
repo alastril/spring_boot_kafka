@@ -20,21 +20,9 @@ Run Consumer: with VM option -Dspring.profiles.active=Consumer
 
 1) Check code quality in sonar(sonar service must be already started on http://localhost:9000/):
     1) Create manually project with brunch you want
-    2) generate login token(http://localhost:9000/admin/users , 'Tokens' field) and use in -Dsonar.login(next point): example token - squ_1946c52f7d5b101fc9240063b578364ae3ce5290
-    3) Examples : `mvn clean verify sonar:sonar -Pcoverage -Dsonar.projectKey=spring_kafka -Dsonar.host.url=http://localhost:9000 -Dsonar.login=squ_1946c52f7d5b101fc9240063b578364ae3ce5290`
-       mvn clean verify sonar:sonar -Pcoverage -Dsonar.projectKey=spring_kafka -Dsonar.host.url=http://localhost:9000 -Dsonar.login=sqp_eeb8a85889a85e53537a93a3aab82b4f61993f0c
+    2) generate login token(http://localhost:9000/admin/users , 'Tokens' field) and use in -Dsonar.login(next point): example token - squ_b5595ce778fd62616c147565a42e92d5a0d40319
+    3) Examples : `mvn clean verify sonar:sonar -Pcoverage -Dsonar.projectKey=spring_kafka -Dsonar.host.url=http://localhost:9000 -Dsonar.login=squ_b5595ce778fd62616c147565a42e92d5a0d40319`
+       mvn clean verify sonar:sonar -Pcoverage -Dsonar.projectKey=spring_kafka -Dsonar.host.url=http://localhost:9000 -Dsonar.login=squ_b5595ce778fd62616c147565a42e92d5a0d40319
 
-   4) API for sending message localhost:8081/kafka/send
-body example:
-{
-    "body":"test"
-}
-
-API for sending list message + batch
- localhost:8081/kafka/sendToBatch
-[{
-    "body":"test"
-},
-{
-    "body":"test_two"
-}]
+run in cmd(useful for testing before docker):
+java -jar spring_boot_kafka-1.0-SNAPSHOT-jar-with-dependencies.jar --spring.profiles.active=Hibernate,Core

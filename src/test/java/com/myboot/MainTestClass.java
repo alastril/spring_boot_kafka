@@ -8,6 +8,7 @@ import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.containers.DockerComposeContainer;
 
@@ -15,11 +16,13 @@ import org.testcontainers.containers.DockerComposeContainer;
 @AutoConfigureMockMvc
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ContextConfiguration(initializers = ConfigTestComposeFile.class)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 public abstract class MainTestClass {
 
-    @Autowired
-    DockerComposeContainer dockerComposeContainer;
     private static final Logger LOGGER = LogManager.getLogger(MainTestClass.class);
+
+    @Autowired
+    private DockerComposeContainer dockerComposeContainer;
 
     @AfterAll
     public void destroy() {

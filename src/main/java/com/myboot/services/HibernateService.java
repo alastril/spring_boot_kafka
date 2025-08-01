@@ -48,12 +48,12 @@ public class HibernateService {
     }
 
     public User addUser(User user) {
-        logger.info("adding user {}", user.toString());
+        logger.info("adding user {}", user);
         return userRepository.save(user);
     }
 
     public int updateUser(User user) {
-        logger.info("updating user {}", user.toString());
+        logger.info("updating user {}", user);
         return userRepository.updateUser(user);
     }
 }
