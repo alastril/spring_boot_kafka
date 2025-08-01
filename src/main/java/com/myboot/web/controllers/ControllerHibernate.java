@@ -25,21 +25,18 @@ public class ControllerHibernate {
     private HibernateService hibernateService;
 
     @GetMapping(path = "/users/all")
-    @ResponseBody
     public ResponseEntity<List<User>> getUsersAll() {
         LOGGER.debug("getAllUsers body");
         return new ResponseEntity<>(hibernateService.findAll(), HttpStatus.OK);
     }
 
     @GetMapping(path = "/users/{id}")
-    @ResponseBody
     public ResponseEntity<User> getUserById(@PathVariable Long id) {
         LOGGER.debug("getUser by id {}", id);
         return new ResponseEntity<>(hibernateService.findById(id), HttpStatus.OK);
     }
 
     @GetMapping(path = "/users")
-    @ResponseBody
     public ResponseEntity<List<User>> getUsersByDateCreated(@RequestBody RequestDate requestDate) {
         LOGGER.debug("Message date_created object from body {}", requestDate);
         return new ResponseEntity<>(hibernateService.getUsersByDateCreated(
@@ -48,7 +45,6 @@ public class ControllerHibernate {
     }
 
     @GetMapping(path = "/users/before")
-    @ResponseBody
     public ResponseEntity<List<User>> getUserByDateFilterBefore(@RequestBody RequestDate requestDate) {
         LOGGER.debug("Message before object from body {}", requestDate);
         return new ResponseEntity<>(hibernateService.getUsersSliceByDateCreatedBefore(
@@ -57,7 +53,6 @@ public class ControllerHibernate {
     }
 
     @GetMapping(path = "/users/between")
-    @ResponseBody
     public ResponseEntity<List<User>> getUserByDateFilterBetween(@RequestBody RequestDate requestDate) {
         LOGGER.debug("Message object from body Between {}", requestDate);
         return new ResponseEntity<>(hibernateService.getUsersSliceByDateCreatedBetween(

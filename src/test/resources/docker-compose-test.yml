@@ -11,26 +11,35 @@ services:
       - REDIS_PASSWORD=root
       - REDIS_PORT=6379
       - REDIS_DATABASES=16
-  zookeeper:
-    image: confluentinc/cp-zookeeper:latest
+  kafka-controller-1:
+    image: confluentinc/cp-kafka:latest
     environment:
-      ZOOKEEPER_CLIENT_PORT: 2182
-      ZOOKEEPER_TICK_TIME: 2000
-    ports:
-      - '2182:2182'
+      CLUSTER_ID: "your_unique_cluster_id1"
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: controller
+      KAFKA_LISTENERS: CONTROLLER://:9095
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka-controller-1:9095
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
   kafka:
     image: confluentinc/cp-kafka:latest
-    depends_on:
-      - zookeeper
     ports:
-      - '9094:9094'
+      - 9095:9095
     environment:
-      KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2182
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9095,PLAINTEXT_HOST://localhost:9094,PLAINTEXT_KAFKA_HOST://kafka:9093
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT,PLAINTEXT_KAFKA_HOST:PLAINTEXT
-      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_NODE_ID: 2
+      CLUSTER_ID: "your_unique_cluster_id1"
+      KAFKA_PROCESS_ROLES: broker
+      KAFKA_LISTENERS: 'PLAINTEXT://:19095,PLAINTEXT_HOST://:9095'
+      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka:19095,PLAINTEXT_HOST://localhost:9095'
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka-controller-1:9095
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+    depends_on:
+      - kafka-controller-1
   mysql:
     image: mysql:latest
 #    container_name: mysql

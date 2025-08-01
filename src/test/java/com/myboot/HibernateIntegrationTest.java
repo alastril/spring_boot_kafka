@@ -6,11 +6,16 @@ import com.myboot.entity.User;
 import com.myboot.repository.UserRepository;
 import com.myboot.request.RequestDate;
 import com.myboot.request.SortDirection;
+import com.myboot.response.ErrorBody;
+import com.myboot.security.JwtAuthenticationFilter;
+import com.myboot.security.dto.JwtAuthenticationResponseDTO;
+import com.myboot.security.dto.SignInRequestDTO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -26,7 +31,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @ActiveProfiles(profiles = {"Hibernate", "test"})
-public class HibernateIntegrationTest extends MainTestClass {
+class HibernateIntegrationTest extends MainTestClass {
 
     private static final Logger LOGGER = LogManager.getLogger(HibernateIntegrationTest.class);
     @Autowired
@@ -41,10 +46,21 @@ public class HibernateIntegrationTest extends MainTestClass {
     @Autowired
     UserRepository userRepository;
 
+    HttpHeaders headers = new HttpHeaders();
+
     @BeforeAll
-    public void init() throws Exception {
+    void init() throws Exception {
         requestDate.setDirection(SortDirection.DESC);
         requestDate.setFieldsSorted(Arrays.asList("dateCreation", "id"));
+        SignInRequestDTO signInRequestDTO = SignInRequestDTO.builder().username("Tolya").password("pass").build();
+
+        MvcResult resultActions = mockMvc.perform(MockMvcRequestBuilders.post("/auth/sign_in")
+                .contentType("application/json")
+                .content(objectMapper.writeValueAsString(signInRequestDTO))).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        JwtAuthenticationResponseDTO jwtAuthenticationResponseDTO =
+                objectMapper.readValue(resultActions.getResponse().getContentAsString(), JwtAuthenticationResponseDTO.class);
+        headers.add(HttpHeaders.AUTHORIZATION,
+                JwtAuthenticationFilter.BEARER_PREFIX + jwtAuthenticationResponseDTO.getToken());
     }
 
     @Test
@@ -54,6 +70,7 @@ public class HibernateIntegrationTest extends MainTestClass {
         requestDate.setCountItemsPerPage(10);
         MvcResult resultActions = mockMvc.perform(MockMvcRequestBuilders.get("/hyber/users")
                 .contentType("application/json")
+                .headers(headers)
                 .content(objectMapper.writeValueAsString(requestDate))).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         List<User> users = objectMapper.readValue(resultActions.getResponse().getContentAsString(), new TypeReference<>() {
         });
@@ -70,6 +87,7 @@ public class HibernateIntegrationTest extends MainTestClass {
         requestDate.setCountItemsPerPage(1);
         MvcResult resultActions = mockMvc.perform(MockMvcRequestBuilders.get("/hyber/users")
                 .contentType("application/json")
+                .headers(headers)
                 .content(objectMapper.writeValueAsString(requestDate))).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         List<User> users = objectMapper.readValue(resultActions.getResponse().getContentAsString(), new TypeReference<>() {
         });
@@ -81,6 +99,7 @@ public class HibernateIntegrationTest extends MainTestClass {
         requestDate.setPage(1);
         resultActions = mockMvc.perform(MockMvcRequestBuilders.get("/hyber/users")
                 .contentType("application/json")
+                .headers(headers)
                 .content(objectMapper.writeValueAsString(requestDate))).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         users = objectMapper.readValue(resultActions.getResponse().getContentAsString(), new TypeReference<>() {
         });
@@ -97,6 +116,7 @@ public class HibernateIntegrationTest extends MainTestClass {
         requestDate.setCountItemsPerPage(10);
         MvcResult resultActions = mockMvc.perform(MockMvcRequestBuilders.get("/hyber/users/before")
                 .contentType("application/json")
+                .headers(headers)
                 .content(objectMapper.writeValueAsString(requestDate))).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         List<User> users = objectMapper.readValue(resultActions.getResponse().getContentAsString(), new TypeReference<>() {
         });
@@ -114,6 +134,7 @@ public class HibernateIntegrationTest extends MainTestClass {
         requestDate.setPage(0);
         MvcResult resultActions = mockMvc.perform(MockMvcRequestBuilders.get("/hyber/users/before")
                 .contentType("application/json")
+                .headers(headers)
                 .content(objectMapper.writeValueAsString(requestDate))).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         List<User> users = objectMapper.readValue(resultActions.getResponse().getContentAsString(), new TypeReference<>() {
         });
@@ -125,6 +146,7 @@ public class HibernateIntegrationTest extends MainTestClass {
         requestDate.setPage(1);
         resultActions = mockMvc.perform(MockMvcRequestBuilders.get("/hyber/users/before")
                 .contentType("application/json")
+                .headers(headers)
                 .content(objectMapper.writeValueAsString(requestDate))).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         users = objectMapper.readValue(resultActions.getResponse().getContentAsString(), new TypeReference<>() {
         });
@@ -144,6 +166,7 @@ public class HibernateIntegrationTest extends MainTestClass {
         requestDate.setPage(0);
         MvcResult resultActions = mockMvc.perform(MockMvcRequestBuilders.get("/hyber/users/between")
                 .contentType("application/json")
+                .headers(headers)
                 .content(objectMapper.writeValueAsString(requestDate))).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         List<User> users = objectMapper.readValue(resultActions.getResponse().getContentAsString(), new TypeReference<>() {
         });
@@ -166,6 +189,7 @@ public class HibernateIntegrationTest extends MainTestClass {
         requestDate.setPage(0);
         MvcResult resultActions = mockMvc.perform(MockMvcRequestBuilders.get("/hyber/users/between")
                 .contentType("application/json")
+                .headers(headers)
                 .content(objectMapper.writeValueAsString(requestDate))).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         List<User> users = objectMapper.readValue(resultActions.getResponse().getContentAsString(), new TypeReference<>() {
         });
@@ -179,6 +203,7 @@ public class HibernateIntegrationTest extends MainTestClass {
         requestDate.setPage(1);
         resultActions = mockMvc.perform(MockMvcRequestBuilders.get("/hyber/users/between")
                 .contentType("application/json")
+                .headers(headers)
                 .content(objectMapper.writeValueAsString(requestDate))).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         users = objectMapper.readValue(resultActions.getResponse().getContentAsString(), new TypeReference<>() {
         });
@@ -197,6 +222,7 @@ public class HibernateIntegrationTest extends MainTestClass {
                         .atTime(LocalDateTime.MIN.toLocalTime()).atZone(ZoneId.systemDefault())).build();
         MvcResult resultActions = mockMvc.perform(MockMvcRequestBuilders.post("/hyber/users")
                 .contentType("application/json")
+                .headers(headers)
                 .content(objectMapper.writeValueAsString(user))).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         User userResult = objectMapper.readValue(resultActions.getResponse().getContentAsString(), User.class);
         user.setId(userResult.getId());
@@ -205,6 +231,7 @@ public class HibernateIntegrationTest extends MainTestClass {
         requestDate.setDate(user.getDateCreation());
         resultActions = mockMvc.perform(MockMvcRequestBuilders.get("/hyber/users")
                 .contentType("application/json")
+                .headers(headers)
                 .content(objectMapper.writeValueAsString(requestDate))).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         List<User> users = objectMapper.readValue(resultActions.getResponse().getContentAsString(), new TypeReference<>() {
         });
@@ -215,14 +242,56 @@ public class HibernateIntegrationTest extends MainTestClass {
     }
 
     @Test
-    public void checkUserOptimisticLockTest() throws Exception {
+    void checkUpdatingUser() throws Exception {
+        User user = User.builder().userName("testName").orderList(List.of()).
+                dateCreation(LocalDate.parse("1999-01-30", DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+                        .atTime(LocalDateTime.MIN.toLocalTime()).atZone(ZoneId.systemDefault())).build();
+        MvcResult resultActions = mockMvc.perform(MockMvcRequestBuilders.post("/hyber/users")
+                .contentType("application/json")
+                .headers(headers)
+                .content(objectMapper.writeValueAsString(user))).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        User userPostResult = objectMapper.readValue(resultActions.getResponse().getContentAsString(), User.class);
+        user.setId(userPostResult.getId());
+        Assert.isTrue(userPostResult.equals(user), "User wasn't added");
+
+        userPostResult.setUserName("updated Name");
+        resultActions = mockMvc.perform(MockMvcRequestBuilders.put("/hyber/users")
+                .contentType("application/json")
+                .headers(headers)
+                .content(objectMapper.writeValueAsString(userPostResult))).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        Integer updateRowCount = objectMapper.readValue(resultActions.getResponse().getContentAsString(), Integer.class);
+        Assert.isTrue( 1 == updateRowCount, "User wasn't updated");
+
+        requestDate.setDate(user.getDateCreation());
+        resultActions = mockMvc.perform(MockMvcRequestBuilders.get("/hyber/users/"+userPostResult.getId())
+                .contentType("application/json")
+                .headers(headers)
+                .content(objectMapper.writeValueAsString(requestDate))).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        User userUpdatedResult = objectMapper.readValue(resultActions.getResponse().getContentAsString(), new TypeReference<>() {
+        });
+        Assert.isTrue( userUpdatedResult.equals(userPostResult), "User not the same before send update request and after");
+        userRepository.delete(userUpdatedResult);//cleanup
+    }
+
+    @Test
+    void checkUserOptimisticLockWithAnotherVersionTest() throws Exception {
         User user = User.builder().id(1L).userName("testName").orderList(List.of()).version(1).
                 dateCreation(LocalDate.parse("1999-01-30", DateTimeFormatter.ofPattern("yyyy-MM-dd"))
                         .atTime(LocalDateTime.MIN.toLocalTime()).atZone(ZoneId.systemDefault())).build();
         MvcResult resultActions = mockMvc.perform(MockMvcRequestBuilders.post("/hyber/users")
                 .contentType("application/json")
+                .headers(headers)
                 .content(objectMapper.writeValueAsString(user))).andExpect(MockMvcResultMatchers.status().isBadRequest()).andReturn();
-        Assert.isTrue("Row was updated or deleted by another transaction (or unsaved-value mapping was incorrect)".
-                equals(resultActions.getResponse().getContentAsString()), "Bad Exception handle");
+        Assert.isTrue(
+                "Row was updated or deleted by another transaction (or unsaved-value mapping was incorrect)".
+                equals(objectMapper.readValue(resultActions.getResponse().getContentAsString(),
+                        ErrorBody.class).getErrorMessage()),
+                "Bad Exception handle");
+    }
+
+    @Test
+    void getUsersAllTest() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get("/hyber/users/all")
+                .contentType("application/json")).andExpect(MockMvcResultMatchers.status().isForbidden());
     }
 }

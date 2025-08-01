@@ -5,10 +5,11 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.testcontainers.containers.DockerComposeContainer;
-import org.testcontainers.containers.wait.strategy.*;
+import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Container;
 
 import java.io.File;
+import java.util.Map;
 
 /**
  * Using docker-compose file, Init-n config-n
@@ -19,15 +20,17 @@ public class ConfigTestComposeFile implements
         ApplicationContextInitializer<ConfigurableApplicationContext> {
 
     private Logger LOGGER = LogManager.getLogger(ConfigTestComposeFile.class);
+    public static final Map<String,Integer> serviceMap =
+            Map.of("mysql_1",3306, "kafka_1",9095);
 
     @Container
-    public  DockerComposeContainer dockerComposeContainer = new DockerComposeContainer( new File("src/test/resources/docker-compose-test.yml"))
-            .withExposedService("zookeeper_1",2182, Wait.forListeningPort())
-            .withExposedService("mysql_1",3306, Wait.forListeningPort())
-            .withExposedService("kafka_1",9094, Wait.forListeningPort());
+    public  DockerComposeContainer dockerComposeContainer =
+            new DockerComposeContainer( new File("src/test/resources/docker-compose-test.yml"));
 
     @Override
     public void initialize(ConfigurableApplicationContext applicationContext) {
+        serviceMap.forEach((key, value) ->
+                dockerComposeContainer.withExposedService(key, value, Wait.forListeningPort()));
         applicationContext.getBeanFactory().registerResolvableDependency(DockerComposeContainer.class, dockerComposeContainer);
         dockerComposeContainer.start();
     }
