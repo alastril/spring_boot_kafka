@@ -1,2 +1,2 @@
 singleServerConfig:
-  address: "redis://localhost:6389"
+  address: "redis://localhost:6379"
