@@ -1,2 +1,2 @@
 singleServerConfig:
-  address: "redis://host.docker.internal:6379"
+  address: "redis://host.docker.internal:6389"
