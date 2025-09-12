@@ -1,0 +1,332 @@
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: sb-kafka-pub-pod
+  namespace: sb-kafka
+  labels:
+    label.service: sb-kafka-pub-k #must be the same as in service.yaml services label
+spec:
+  containers:
+    - name: sb-kafka-pub-k
+      image: localhost:5000/sb_kafka_pub_k
+      imagePullPolicy: IfNotPresent
+      env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: "Publisher,k8s"
+        - name: URL_HOST_MYSQL
+          valueFrom:
+            configMapKeyRef:
+              name: config-env-server-sb-kafka-k
+              key: mysql.url
+        - name: URL_PORT_MYSQL
+          valueFrom:
+            configMapKeyRef:
+              name: config-env-server-sb-kafka-k
+              key: mysql.port
+        - name: DB_MYSQL
+          valueFrom:
+            configMapKeyRef:
+              name: config-env-server-sb-kafka-k
+              key: mysql.database
+        - name: URL_HOST_KAFKA
+          valueFrom:
+            configMapKeyRef:
+              name: config-env-server-sb-kafka-k
+              key: spring.kafka.url
+        - name: URL_PORT_KAFKA
+          valueFrom:
+            configMapKeyRef:
+              name: config-env-server-sb-kafka-k
+              key: spring.kafka.port
+        - name: URL_HOST_REDIS
+          valueFrom:
+            configMapKeyRef:
+              name: config-env-server-sb-kafka-k
+              key: redis.address.url
+        - name: URL_PORT_REDIS
+          valueFrom:
+            configMapKeyRef:
+              name: config-env-server-sb-kafka-k
+              key: redis.port
+      ports:
+        - containerPort: 8081
+          name: sb-kaf-pub-svc
+  initContainers:
+    - name: wait-mysql
+      image: localhost:5000/sb_kafka_pub_k
+      command: [ "sh", "-c", "until nc -z mysql-s.sb-kafka.svc.cluster.local 3306; do echo Waiting for mysql; sleep 2; done;" ]
+    - name: wait-redis
+      image: localhost:5000/sb_kafka_pub_k
+      command: [ "sh", "-c", "until nc -z redis-s.sb-kafka.svc.cluster.local 6379; do echo Waiting for redis; sleep 2; done;" ]
+    - name: wait-kafka
+      image: localhost:5000/sb_kafka_pub_k
+      command: [ "sh", "-c", "until nc -z kafka-s.sb-kafka.svc.cluster.local 9092; do echo Waiting for kafka; sleep 2; done;" ]
+
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: sb-kafka-cons-pod
+  namespace: sb-kafka
+  labels:
+    label.service: sb-kafka-cons-k
+spec:
+  containers:
+    - name: sb-kafka-cons-k
+      image: localhost:5000/sb_kafka_cons_k
+      imagePullPolicy: IfNotPresent
+      env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: "Consumer,k8s"
+        - name: URL_HOST_MYSQL
+          valueFrom:
+            configMapKeyRef:
+              name: config-env-server-sb-kafka-k
+              key: mysql.url
+        - name: URL_PORT_MYSQL
+          valueFrom:
+            configMapKeyRef:
+              name: config-env-server-sb-kafka-k
+              key: mysql.port
+        - name: DB_MYSQL
+          valueFrom:
+            configMapKeyRef:
+              name: config-env-server-sb-kafka-k
+              key: mysql.database
+        - name: URL_HOST_KAFKA
+          valueFrom:
+            configMapKeyRef:
+              name: config-env-server-sb-kafka-k
+              key: spring.kafka.url
+        - name: URL_PORT_KAFKA
+          valueFrom:
+            configMapKeyRef:
+              name: config-env-server-sb-kafka-k
+              key: spring.kafka.port
+        - name: URL_HOST_REDIS
+          valueFrom:
+            configMapKeyRef:
+              name: config-env-server-sb-kafka-k
+              key: redis.address.url
+        - name: URL_PORT_REDIS
+          valueFrom:
+            configMapKeyRef:
+              name: config-env-server-sb-kafka-k
+              key: redis.port
+      ports:
+        - containerPort: 8082
+          name: sb-kaf-con-svc
+  initContainers:
+    - name: wait-mysql
+      image: localhost:5000/sb_kafka_cons_k
+      command: [ "sh", "-c", "until nc -z mysql-s.sb-kafka.svc.cluster.local 3306; do echo Waiting for mysql; sleep 2; done;" ]
+    - name: wait-redis
+      image: localhost:5000/sb_kafka_cons_k
+      command: [ "sh", "-c", "until nc -z redis-s.sb-kafka.svc.cluster.local 6379; do echo Waiting for redis; sleep 2; done;" ]
+    - name: wait-kafka
+      image: localhost:5000/sb_kafka_cons_k
+      command: [ "sh", "-c", "sleep 15 && until nc -z kafka-s.sb-kafka.svc.cluster.local 9092; do echo Waiting for kafka; sleep 2; done;" ]
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: sb-kafka-hibernate-pod
+  namespace: sb-kafka
+  labels:
+    label.service: sb-kafka-hibernate-k
+spec:
+  containers:
+    - name: sb-kafka-hibernate-k
+      image: localhost:5000/sb_kafka_hibernate_k
+      imagePullPolicy: IfNotPresent
+      env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: "Hibernate,k8s"
+        - name: URL_HOST_MYSQL
+          valueFrom:
+            configMapKeyRef:
+              name: config-env-server-sb-kafka-k
+              key: mysql.url
+        - name: URL_PORT_MYSQL
+          valueFrom:
+            configMapKeyRef:
+              name: config-env-server-sb-kafka-k
+              key: mysql.port
+        - name: DB_MYSQL
+          valueFrom:
+            configMapKeyRef:
+              name: config-env-server-sb-kafka-k
+              key: mysql.database
+        - name: URL_HOST_REDIS
+          valueFrom:
+            configMapKeyRef:
+              name: config-env-server-sb-kafka-k
+              key: redis.address.url
+        - name: URL_PORT_REDIS
+          valueFrom:
+            configMapKeyRef:
+              name: config-env-server-sb-kafka-k
+              key: redis.port
+      ports:
+        - containerPort: 8083
+          name: sb-kaf-hib-svc
+  initContainers:
+    - name: wait-mysql
+      image: localhost:5000/sb_kafka_hibernate_k
+      command: [ "sh", "-c", "until nc -z mysql-s.sb-kafka.svc.cluster.local 3306; do echo Waiting for mysql; sleep 2; done;" ]
+    - name: wait-redis
+      image: localhost:5000/sb_kafka_hibernate_k
+      command: [ "sh", "-c", "sleep 30 && until nc -z redis-s.sb-kafka.svc.cluster.local 6379; do echo Waiting for redis; sleep 2; done;" ]
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mysql-pod
+  namespace: sb-kafka
+  labels:
+    label.service: mysql-s
+spec:
+  containers:
+    - name: mysql-k
+      image: localhost:5000/mysql_k
+      imagePullPolicy: IfNotPresent
+      ports:
+        - containerPort: 3306
+          name: mysql-s-svc
+      env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            configMapKeyRef:
+              name: config-env-server-sb-kafka-k
+              key: mysql.root.password
+        - name: MYSQL_DATABASE
+          valueFrom:
+            configMapKeyRef:
+              name: config-env-server-sb-kafka-k
+              key: mysql.database
+        - name: MYSQL_ROOT_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: config-env-server-sb-kafka-k
+              key: mysql.root.host
+      volumeMounts:
+        - name: mysql
+          mountPath: /var/lib/mysql
+  volumes:
+    - name: mysql
+      emptyDir: { }
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: redis-pod
+  namespace: sb-kafka
+  labels:
+    label.service: redis-s
+spec:
+  containers:
+    - name: redis-k
+      image: localhost:5000/redis_k
+      imagePullPolicy: IfNotPresent
+      env:
+        - name: REDIS_PASSWORD
+          valueFrom:
+            configMapKeyRef:
+              name: config-env-server-sb-kafka-k
+              key: redis.pass
+        - name: REDIS_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: config-env-server-sb-kafka-k
+              key: redis.port
+        - name: REDIS_DATABASES
+          valueFrom:
+            configMapKeyRef:
+              name: config-env-server-sb-kafka-k
+              key: redis.databases
+      ports:
+        - containerPort: 6379
+          name: redis-s-svc
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kafka-controller-pod
+  namespace: sb-kafka
+  labels:
+    label.service: kafka-controller-s
+spec:
+  containers:
+    - name: kafka-controller-k
+      image: localhost:5000/kafka-controller_k
+      imagePullPolicy: IfNotPresent
+      ports:
+        - containerPort: 9093
+          name: kafka-cont-svc
+      env:
+        - name: CLUSTER_ID
+          value: "your_unique_cluster_id1"
+        - name: KAFKA_NODE_ID
+          value: "1"
+        - name: KAFKA_PROCESS_ROLES
+          value: controller
+        - name: KAFKA_LISTENERS
+          value: CONTROLLER://:9093
+        - name: KAFKA_INTER_BROKER_LISTENER_NAME
+          value: PLAINTEXT
+        - name: KAFKA_CONTROLLER_LISTENER_NAMES
+          value: CONTROLLER
+        - name: KAFKA_CONTROLLER_QUORUM_VOTERS
+          value: 1@kafka-controller-s.sb-kafka.svc.cluster.local:9093
+        - name: KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS
+          value: "0"
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kafka-pod
+  namespace: sb-kafka
+  labels:
+    label.service: kafka-s
+spec:
+  containers:
+    - name: kafka-k
+      image: localhost:5000/kafka-controller_k
+      imagePullPolicy: IfNotPresent
+      ports:
+        - containerPort: 9092
+          name: kafka-s-svc
+      env:
+        - name: KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR
+          value: "1"
+        - name: KAFKA_NODE_ID
+          value: "2"
+        - name: CLUSTER_ID
+          value: "your_unique_cluster_id1"
+        - name: KAFKA_PROCESS_ROLES
+          value: broker
+        - name: KAFKA_LISTENERS
+          value: 'PLAINTEXT://:19092,PLAINTEXT_HOST://:9092,PLAINTEXT_KAFKA_HOST://:9093'
+        - name: KAFKA_ADVERTISED_LISTENERS
+          value: 'PLAINTEXT://kafka-broker-1:19092,PLAINTEXT_HOST://kafka-s.sb-kafka.svc.cluster.local:9092,PLAINTEXT_KAFKA_HOST://kafka-s.sb-kafka.svc.cluster.local:9093'
+        - name: KAFKA_INTER_BROKER_LISTENER_NAME
+          value: PLAINTEXT
+        - name: KAFKA_CONTROLLER_LISTENER_NAMES
+          value: CONTROLLER
+        - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
+          value: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT, PLAINTEXT_KAFKA_HOST:PLAINTEXT
+        - name: KAFKA_CONTROLLER_QUORUM_VOTERS
+          value: 1@kafka-controller-s.sb-kafka.svc.cluster.local:9093
+        - name: KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS
+          value: "0"
+  initContainers:
+    - name: wait-kafka-controller
+      image: localhost:5000/kafka-controller_k
+      command: [ "sh", "-c", "until nc -z kafka-controller-s.sb-kafka.svc.cluster.local 9093; do echo Waiting for kafka; sleep 2; done;" ]

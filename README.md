@@ -1,9 +1,11 @@
 Application for testing SpringBoot with kafka.
-
+docker compose -f docker-compose-jenkins.yml up --build --force-recreate   
+https://download.oracle.com/java/19/archive/jdk-19.0.2_linux-x64_bin.tar.gz
+docker builder prune
 1) install docker
 
 2) run in root dir project next command with maven build:
-    - `docker compose -f docker-compose-kafka.yml up`
+    - `docker compose -f docker-compose-kafka.yml up --build --force-recreate`
     OR run in root dir project next command WITHOUT maven build:
     - `docker compose -f docker-compose-kafka-without-mvn.yml up`
 

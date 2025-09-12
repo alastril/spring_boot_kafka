@@ -1,0 +1,37 @@
+pipeline {
+    agent any
+    tools {
+        jdk 'jdk19'
+        maven 'mvn391'
+    }
+    stages {
+        stage("Init..., get from Git") {
+            steps {
+                sh 'java -version'
+                sh 'mvn --version'
+                git(url: 'https://github.com/alastril/spring_boot_kafka.git', branch: 'jenkins_test')
+            }
+        }
+        stage("Building...") {
+            steps {
+                echo "Start building..."
+                sh 'mvn clean compile -P docker assembly:single'
+                echo "Running ${env.BUILD_ID} on ${env.JENKINS_URL}"
+            }
+        }
+        stage("Testing...") {
+            steps {
+                echo "Start building..."
+                sh 'mvn test'
+            }
+        }
+    }
+    post {
+        always {
+            cleanWs()
+        }
+        failure {
+            cleanWs(cleanWhenFailure: true)
+        }
+    }
+}
