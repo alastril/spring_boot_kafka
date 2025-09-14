@@ -55,7 +55,7 @@ spec:
   initContainers:
     - name: wait-mysql
       image: localhost:5000/sb_kafka_pub_k
-      command: [ "sh", "-c", "until nc -z mysql-s.sb-kafka.svc.cluster.local 3306; do echo Waiting for mysql; sleep 2; done;" ]
+      command: [ "sh", "-c", "until nc -z mysql-s.sb-kafka.svc.cluster.local 3306; do echo Waiting for mysql; sleep 5; done;" ]
     - name: wait-redis
       image: localhost:5000/sb_kafka_pub_k
       command: [ "sh", "-c", "until nc -z redis-s.sb-kafka.svc.cluster.local 6379; do echo Waiting for redis; sleep 2; done;" ]
@@ -127,7 +127,7 @@ spec:
       command: [ "sh", "-c", "until nc -z redis-s.sb-kafka.svc.cluster.local 6379; do echo Waiting for redis; sleep 2; done;" ]
     - name: wait-kafka
       image: localhost:5000/sb_kafka_cons_k
-      command: [ "sh", "-c", "sleep 15 && until nc -z kafka-s.sb-kafka.svc.cluster.local 9092; do echo Waiting for kafka; sleep 2; done;" ]
+      command: [ "sh", "-c", "until nc -z kafka-s.sb-kafka.svc.cluster.local 9092; do echo Waiting for kafka; sleep 15; done;" ]
 
 ---
 apiVersion: v1
@@ -179,7 +179,7 @@ spec:
       command: [ "sh", "-c", "until nc -z mysql-s.sb-kafka.svc.cluster.local 3306; do echo Waiting for mysql; sleep 2; done;" ]
     - name: wait-redis
       image: localhost:5000/sb_kafka_hibernate_k
-      command: [ "sh", "-c", "sleep 30 && until nc -z redis-s.sb-kafka.svc.cluster.local 6379; do echo Waiting for redis; sleep 2; done;" ]
+      command: [ "sh", "-c", "until nc -z redis-s.sb-kafka.svc.cluster.local 6379; do echo Waiting for redis; sleep 25; done;" ]
 
 ---
 apiVersion: v1
@@ -330,3 +330,74 @@ spec:
     - name: wait-kafka-controller
       image: localhost:5000/kafka-controller_k
       command: [ "sh", "-c", "until nc -z kafka-controller-s.sb-kafka.svc.cluster.local 9093; do echo Waiting for kafka; sleep 2; done;" ]
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: flyway-pod
+  namespace: sb-kafka
+  labels:
+    label.service: flyway-s
+spec:
+  restartPolicy: OnFailure
+  containers:
+    - name: flyway-k
+      image: localhost:5000/sb_kafka_flyway_k
+      imagePullPolicy: IfNotPresent
+      ports:
+        - containerPort: 9999
+          name: flyway-s-svc
+      env:
+        - name: URL_HOST_MYSQL
+          valueFrom:
+            configMapKeyRef:
+              name: config-env-server-sb-kafka-k
+              key: mysql.url
+        - name: URL_PORT_MYSQL
+          valueFrom:
+            configMapKeyRef:
+              name: config-env-server-sb-kafka-k
+              key: mysql.port
+        - name: DB_MYSQL
+          valueFrom:
+            configMapKeyRef:
+              name: config-env-server-sb-kafka-k
+              key: mysql.database
+        - name: FLYWAY_URL
+          value: "jdbc:mysql://$(URL_HOST_MYSQL):$(URL_PORT_MYSQL)/$(DB_MYSQL)?allowPublicKeyRetrieval=true"
+        - name: FLYWAY_USER
+          valueFrom:
+            configMapKeyRef:
+              name: config-env-server-sb-kafka-k
+              key: flyway.user
+        - name: FLYWAY_PASSWORD
+          valueFrom:
+            configMapKeyRef:
+              name: config-env-server-sb-kafka-k
+              key: mysql.root.password
+        - name: FLYWAY_BASELINE_ON_MIGRATE
+          valueFrom:
+            configMapKeyRef:
+              name: config-env-server-sb-kafka-k
+              key: flyway.baselineOnMigrate
+        - name: FLYWAY_BASELINE_VERSION
+          valueFrom:
+            configMapKeyRef:
+              name: config-env-server-sb-kafka-k
+              key: flyway.baselineVersion
+        - name: FLYWAY_CONNECT_RETRIES
+          valueFrom:
+            configMapKeyRef:
+              name: config-env-server-sb-kafka-k
+              key: flyway.connectRetries
+  initContainers:
+    - name: wait-kafka-pub
+      image: localhost:5000/sb_kafka_flyway_k
+      command: [ "sh", "-c", "until nc -z sb-kafka-pub-service.sb-kafka.svc.cluster.local 8081; do echo Waiting for publisher; sleep 2; done;" ]
+    - name: wait-kafka-cons
+      image: localhost:5000/sb_kafka_flyway_k
+      command: [ "sh", "-c", "until nc -z sb-kafka-cons-service.sb-kafka.svc.cluster.local 8082; do echo Waiting for consumer; sleep 2; done;" ]
+    - name: wait-kafka-hibernate
+      image: localhost:5000/sb_kafka_flyway_k
+      command: [ "sh", "-c", "until nc -z sb-kafka-hibernate-service.sb-kafka.svc.cluster.local 8083; do echo Waiting for hibernate; sleep 2; done;" ]

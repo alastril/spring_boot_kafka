@@ -26,3 +26,7 @@ data:
   mysql.root.password: "root"
   mysql.database: "kafka_db"
   mysql.root.host: '%'
+  flyway.user: "root"
+  flyway.baselineOnMigrate: "true"
+  flyway.baselineVersion: "0"
+  flyway.connectRetries: "30"

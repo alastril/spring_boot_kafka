@@ -2,6 +2,7 @@ name: spring_boot_kafka
 services:
   registry:
     image: registry:2
+    restart: always
     ports:
       - "5000:5000"
     environment:
@@ -21,6 +22,8 @@ services:
       REDIS_PASSWORD: root
       REDIS_PORT: 6379
       REDIS_DATABASES: 16
+    depends_on:
+      - mysql
   kafka-controller:
     image: confluentinc/cp-kafka:latest
     container_name: kafka-controller
@@ -35,7 +38,7 @@ services:
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
   kafka:
     image: confluentinc/cp-kafka:latest
-    container_name: kafka-broker-1
+    container_name: kafka-broker
     ports:
       - 9092:9092
     environment:
@@ -44,7 +47,7 @@ services:
       CLUSTER_ID: "your_unique_cluster_id1"
       KAFKA_PROCESS_ROLES: broker
       KAFKA_LISTENERS: 'PLAINTEXT://:19092,PLAINTEXT_HOST://:9092,PLAINTEXT_KAFKA_HOST://:9093'
-      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka-broker-1:19092,PLAINTEXT_HOST://host.docker.internal:9092,PLAINTEXT_KAFKA_HOST://kafka:9093'
+      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka-broker:19092,PLAINTEXT_HOST://kafka:9092,PLAINTEXT_KAFKA_HOST://kafka:9093'
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT, PLAINTEXT_KAFKA_HOST:PLAINTEXT
@@ -66,75 +69,6 @@ services:
       - '3306:3306'
     volumes:
       - mysql:/var/lib/mysql
-  sb_kafka_pub:
-    depends_on:
-      - mysql
-      - kafka
-    container_name: sb_kafka_pub
-    build:
-#      context: ../
-      dockerfile: Dockerfile-k8s
-      args:
-         - PROFILE_ACTIVE=Publisher,k8s
-    image: sb_kafka_pub:latest
-    ports:
-      - '8081:8081'
-      - '9191:9090'
-    healthcheck:
-      test: [ "CMD", "curl", "http://host.docker.internal:9090/actuator/health", "-i", "-X", "GET" ]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-  sb_kafka_cons:
-    depends_on:
-      mysql:
-        condition: service_started
-      kafka:
-        condition: service_started
-      sb_kafka_pub:
-        condition: service_started
-        #        condition: service_healthy
-        restart: true
-    container_name: sb_kafka_cons
-    build:
-      dockerfile: Dockerfile-k8s
-      args:
-        - PROFILE_ACTIVE=Consumer,k8s
-    image: sb_kafka_cons:latest
-    ports:
-      - '8082:8082'
-      - '9292:9090'
-    healthcheck:
-      test: [ "CMD", "curl", "http://host.docker.internal:9090/actuator/health", "-i", "-X", "GET" ]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-  sb_kafka_hibernate:
-    depends_on:
-      mysql:
-        condition: service_started
-      redis:
-        condition: service_started
-      sb_kafka_cons:
-        condition: service_started
-        #        condition: service_healthy
-        restart: true
-    container_name: sb_kafka_hibernate
-    build:
-      dockerfile: Dockerfile-k8s
-      args:
-        - PROFILE_ACTIVE=Hibernate,k8s
-    image: sb_kafka_hibernate:latest
-    ports:
-      - '8083:8083'
-      - '9393:9090'
-    environment:
-      SPRING_PROFILES_ACTIVE: Hibernate,k8s
-    healthcheck:
-      test: [ "CMD", "curl", "http://host.docker.internal:9090/actuator/health", "-i", "-X", "GET" ]
-      interval: 5s
-      timeout: 5s
-      retries: 5
 volumes:
   mysql:
     driver: local
