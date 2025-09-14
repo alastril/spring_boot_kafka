@@ -19,10 +19,20 @@ pipeline {
                 echo "Running ${env.BUILD_ID} on ${env.JENKINS_URL}"
             }
         }
-        stage("Testing...") {
+        // stage("Testing...") {
+        //     steps {
+        //         echo "Start building..."
+        //         sh 'mvn test'
+        //     }
+        // }
+        stage('build tools Docker Compose') {
             steps {
-                echo "Start building..."
-                sh 'mvn test'
+                sh 'docker-compose -f docker_scripts/docker-compose-tools.yml build'
+            }
+        }
+        stage('build kafka Docker Compose') {
+            steps {
+                sh 'docker-compose -f docker_scripts/docker-compose-kafka.yml build --build-arg MVN_REPOSITORY_LOCATION="/home/jenkins/.m2/repository"'
             }
         }
     }
