@@ -12,6 +12,6 @@ docker image push localhost:5000/sb_kafka_pub_k:latest
 docker image push localhost:5000/sb_kafka_cons_k:latest
 docker image push localhost:5000/sb_kafka_hibernate_k:latest
 docker image push localhost:5000/sb_kafka_flyway_k:latest
-kubectl apply -f build/config-maps.yml
-kubectl apply -f build/services.yml
-kubectl apply -f build/pods.yml
+kubectl apply -f k8s/build/config-maps.yml
+kubectl apply -f k8s/build/services.yml
+kubectl apply -f k8s/build/pods.yml
