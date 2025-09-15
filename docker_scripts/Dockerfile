@@ -2,7 +2,7 @@ FROM maven:3.9.1 AS build
 ARG MVN_REPOSITORY_LOCATION
 COPY ../src /home/app/src
 COPY ../docker_scripts/mvn_settings_docker.xml /root/.m2/mvn_settings_docker.xml
-COPY $MVN_REPOSITORY_LOCATION /root/.m2/repository
+COPY ../repository /root/.m2/repository
 COPY ../pom.xml /home/app
 ENV DOCKER_HOST=tcp://host.docker.internal:2375
 ENV TESTCONTAINERS_HOST_OVERRIDE=host.docker.internal

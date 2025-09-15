@@ -25,14 +25,24 @@ pipeline {
         //         sh 'mvn test'
         //     }
         // }
-        stage('build tools Docker Compose') {
+        stage('k8s delete conf-maps, services, pods and images') {
             steps {
-                sh 'docker-compose -f docker_scripts/docker-compose-tools.yml build'
+                sh 'kubectl delete pods --all -n sb-kafka'
+                sh 'kubectl delete services --all -n sb-kafka'
+                sh 'kubectl delete configmap --all -n sb-kafka'
+                sh 'docker rmi localhost:5000/sb_kafka_pub_k localhost:5000/sb_kafka_hibernate_k ' +
+                        'localhost:5000/sb_kafka_cons_k localhost:5000/sb_kafka_flyway_k ' +
+                        'sb_kafka_cons sb_kafka_hibernate sb_kafka_pub sb_kafka_flyway'
             }
         }
-        stage('build kafka Docker Compose') {
+        stage('build tools and app images') {
             steps {
-                sh 'docker-compose -f docker_scripts/docker-compose-kafka.yml build --build-arg MVN_REPOSITORY_LOCATION="/home/jenkins/.m2/repository"'
+                sh 'docker-compose -f jenkins/docker-compose-kafka-jenkins-k8s.yml build'
+            }
+        }
+        stage('tag, push images + apply conf-maps, services, pods') {
+            steps {
+                sh 'k8s/tag_push_apply.sh'
             }
         }
     }
