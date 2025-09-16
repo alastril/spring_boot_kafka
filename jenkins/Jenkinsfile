@@ -19,20 +19,26 @@ pipeline {
                 echo "Running ${env.BUILD_ID} on ${env.JENKINS_URL}"
             }
         }
-        // stage("Testing...") {
-        //     steps {
-        //         echo "Start building..."
-        //         sh 'mvn test'
-        //     }
-        // }
+        stage("Testing...") {
+            steps {
+                echo "Start testing..."
+                sh 'mvn test'
+            }
+        }
         stage('k8s delete conf-maps, services, pods and images') {
             steps {
                 sh 'kubectl delete pods --all -n sb-kafka'
                 sh 'kubectl delete services --all -n sb-kafka'
                 sh 'kubectl delete configmap --all -n sb-kafka'
-                sh 'docker rmi localhost:5000/sb_kafka_pub_k localhost:5000/sb_kafka_hibernate_k ' +
-                        'localhost:5000/sb_kafka_cons_k localhost:5000/sb_kafka_flyway_k ' +
-                        'sb_kafka_cons sb_kafka_hibernate sb_kafka_pub sb_kafka_flyway'
+                script {
+                    try {
+                        sh 'docker rmi localhost:5000/sb_kafka_pub_k localhost:5000/sb_kafka_hibernate_k ' +
+                                'localhost:5000/sb_kafka_cons_k localhost:5000/sb_kafka_flyway_k ' +
+                                'sb_kafka_cons sb_kafka_hibernate sb_kafka_pub sb_kafka_flyway'
+                    } catch (Exception e) {
+                        echo "Caught an error: ${e.getMessage()}"
+                    }
+                }
             }
         }
         stage('build tools and app images') {
@@ -42,6 +48,7 @@ pipeline {
         }
         stage('tag, push images + apply conf-maps, services, pods') {
             steps {
+                sh "chmod +x -R ${env.WORKSPACE}"
                 sh 'k8s/tag_push_apply.sh'
             }
         }
