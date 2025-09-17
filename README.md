@@ -1,13 +1,17 @@
 Application for testing SpringBoot with kafka.
 
 1) install docker
-2) set settings_mvn.xml to your Maven
+2) set settings_mvn.xml to your Maven (or set in Idea maven config and repo location).
+   after that run: `mvn clean compile install -P docker assembly:single`. 
+   As a result you should have repository folder in project dir with libs( this repo use in k8s and jenkins image build)
 3) run help tools mysql, redis, kafka, .etc.:
-    - `docker compose -f /docker_scripts/docker-compose-tools.yml up --build --force-recreate`
+    - `docker compose -f docker_scripts/docker-compose-tools.yml up --build --force-recreate`
 4) run in root dir project next command with maven build process:
-    - `docker compose -f /docker_scripts/docker-compose-kafka.yml up --build --force-recreate`
+    - `docker compose -f docker_scripts/docker-compose-kafka.yml build --build-arg MVN_REPOSITORY_LOCATION="../repository"`
+    - `docker compose -f docker_scripts/docker-compose-kafka.yml up`
     OR run in root dir project next command WITHOUT maven build but should already have builded jar-file in target folder:
-    - `docker compose -f docker-compose-kafka-without-mvn.yml up`
+    - `docker compose -f docker_scripts/docker-compose-kafka-without-mvn.yml build --build-arg MVN_REPOSITORY_LOCATION="../repository"`
+    - `docker compose -f docker_scripts/docker-compose-kafka-without-mvn.yml up`
       
 Optional, build jar with all dependencies(default build not working in docker, this need before running command "WITHOUT maven build"):
 `mvn clean compile -P docker assembly:single`

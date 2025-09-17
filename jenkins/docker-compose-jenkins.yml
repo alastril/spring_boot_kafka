@@ -19,6 +19,7 @@ services:
   jenkins-agent: # this agent we use for pipeline run
 #    image: jenkins/inbound-agent
     container_name: jenkins-agent
+    privileged: true
     build:
       dockerfile: Dockerfile_Jenkins_Agent
     depends_on:
@@ -30,11 +31,13 @@ services:
       - JENKINS_AGENT_WORKDIR=/home/jenkins/agent
       - TESTCONTAINERS_HOST_OVERRIDE=host.docker.internal # this host address for connection between app(in this agent container) and others containers in docker
       # JENKINS_SECRET should get after node creation(it show up only one time) in jenkins settings -> nodes -> select created node
-      - JENKINS_SECRET=7f08fc7f39afd1add80b6a630c6d634afc24b0dcb4a00996ac448a86c2db67ea
+      - JENKINS_SECRET=40e7588c8e4a78716a81175fcd78063469af399cb9b514dc21955bba6ee4901c
     volumes:
       - agent_workdir:/home/jenkins/agent
       - ./config_docker_jenkins.json:/root/.docker/config.json # docker config
       - /var/run/docker.sock:/var/run/docker.sock # for inner using docker in container
+      - ../repository:/home/jenkins/.m2/repository
+      - ./config:/home/jenkins/.kube/config
     networks:
       - jenkins-network
 networks:
