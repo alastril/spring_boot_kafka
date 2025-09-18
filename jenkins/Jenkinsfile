@@ -1,0 +1,64 @@
+pipeline {
+    agent {label 'test_agent'}
+    tools {
+        jdk 'jdk19'
+        maven 'mvn391'
+    }
+    stages {
+        stage("Init..., get from Git") {
+            steps {
+                sh 'java -version'
+                sh 'mvn --version'
+                git(url: 'https://github.com/alastril/spring_boot_kafka.git', branch: 'jenkins_test')
+            }
+        }
+        stage("Building...") {
+            steps {
+                echo "Start building..."
+                sh 'mvn clean compile -P docker assembly:single'
+                echo "Running ${env.BUILD_ID} on ${env.JENKINS_URL}"
+            }
+        }
+        stage("Testing...") {
+            steps {
+                echo "Start testing..."
+                sh 'mvn test'
+            }
+        }
+        stage('k8s delete conf-maps, services, pods and images') {
+            steps {
+                sh 'kubectl delete pods --all -n sb-kafka'
+                sh 'kubectl delete services --all -n sb-kafka'
+                sh 'kubectl delete configmap --all -n sb-kafka'
+                script {
+                    try {
+                        sh 'docker rmi localhost:5000/sb_kafka_pub_k localhost:5000/sb_kafka_hibernate_k ' +
+                                'localhost:5000/sb_kafka_cons_k localhost:5000/sb_kafka_flyway_k ' +
+                                'sb_kafka_cons sb_kafka_hibernate sb_kafka_pub sb_kafka_flyway'
+                    } catch (Exception e) {
+                        echo "Caught an error: ${e.getMessage()}"
+                    }
+                }
+            }
+        }
+        stage('build tools and app images') {
+            steps {
+                sh 'docker-compose -f jenkins/docker-compose-kafka-jenkins-k8s.yml build'
+            }
+        }
+        stage('tag, push images + apply conf-maps, services, pods') {
+            steps {
+                sh "chmod +x -R ${env.WORKSPACE}"
+                sh 'k8s/tag_push_apply.sh'
+            }
+        }
+    }
+    post {
+        always {
+            cleanWs()
+        }
+        failure {
+            cleanWs(cleanWhenFailure: true)
+        }
+    }
+}

@@ -1,0 +1,47 @@
+name: spring_boot_kafka
+services:
+  jenkins:
+    image: jenkins/jenkins:lts
+    container_name: jenkins-server
+    privileged: true
+    user: root
+    ports:
+      - "8070:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /usr/bin/docker:/usr/bin/docker
+    environment:
+      - JAVA_OPTS=-Djenkins.install.runSetupWizard=true
+    networks:
+      - jenkins-network
+  jenkins-agent: # this agent we use for pipeline run
+#    image: jenkins/inbound-agent
+    container_name: jenkins-agent
+    privileged: true
+    build:
+      dockerfile: Dockerfile_Jenkins_Agent
+    depends_on:
+      jenkins:
+        condition: service_started
+    environment:
+      - JENKINS_URL=http://jenkins-server:8080
+      - JENKINS_AGENT_NAME=test_agent
+      - JENKINS_AGENT_WORKDIR=/home/jenkins/agent
+      - TESTCONTAINERS_HOST_OVERRIDE=host.docker.internal # this host address for connection between app(in this agent container) and others containers in docker
+      # JENKINS_SECRET should get after node creation(it show up only one time) in jenkins settings -> nodes -> select created node
+      - JENKINS_SECRET=40e7588c8e4a78716a81175fcd78063469af399cb9b514dc21955bba6ee4901c
+    volumes:
+      - agent_workdir:/home/jenkins/agent
+      - ./config_docker_jenkins.json:/root/.docker/config.json # docker config
+      - /var/run/docker.sock:/var/run/docker.sock # for inner using docker in container
+      - ../repository:/home/jenkins/.m2/repository
+      - ./config:/home/jenkins/.kube/config
+    networks:
+      - jenkins-network
+networks:
+  jenkins-network:
+volumes:
+  jenkins_home:
+  agent_workdir:

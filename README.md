@@ -1,12 +1,18 @@
 Application for testing SpringBoot with kafka.
 
 1) install docker
-
-2) run in root dir project next command with maven build:
-    - `docker compose -f docker-compose-kafka.yml up`
-    OR run in root dir project next command WITHOUT maven build:
-    - `docker compose -f docker-compose-kafka-without-mvn.yml up`
-
+2) set settings_mvn.xml to your Maven (or set in Idea maven config and repo location).
+   after that run: `mvn clean compile install -P docker assembly:single`. 
+   As a result you should have repository folder in project dir with libs( this repo use in k8s and jenkins image build)
+3) run help tools mysql, redis, kafka, .etc.:
+    - `docker compose -f docker_scripts/docker-compose-tools.yml up --build --force-recreate`
+4) run in root dir project next command with maven build process:
+    - `docker compose -f docker_scripts/docker-compose-kafka.yml build --build-arg MVN_REPOSITORY_LOCATION="../repository"`
+    - `docker compose -f docker_scripts/docker-compose-kafka.yml up`
+    OR run in root dir project next command WITHOUT maven build but should already have builded jar-file in target folder:
+    - `docker compose -f docker_scripts/docker-compose-kafka-without-mvn.yml build --build-arg MVN_REPOSITORY_LOCATION="../repository"`
+    - `docker compose -f docker_scripts/docker-compose-kafka-without-mvn.yml up`
+      
 Optional, build jar with all dependencies(default build not working in docker, this need before running command "WITHOUT maven build"):
 `mvn clean compile -P docker assembly:single`
 
@@ -26,3 +32,15 @@ Run Consumer: with VM option -Dspring.profiles.active=Consumer
 
 run in cmd(useful for testing before docker):
 java -jar spring_boot_kafka-1.0-SNAPSHOT-jar-with-dependencies.jar --spring.profiles.active=Hibernate,Core
+
+run jenkins:
+docker compose -f docker-compose-jenkins.yml up --build --force-recreate   
+https://download.oracle.com/java/19/archive/jdk-19.0.2_linux-x64_bin.tar.gz
+
+docker builder prune - clean docker build cache
+JPA generate Tables, flyway init data
+mklink /d mvn_repo\ c:\Users\Pasha\.m2\
+Run flyway manual:
+    for PS `mvn clean flyway:migrate "-Dflyway.configFiles=/flyway/flyway.conf"`
+For docker image:
+    `docker compose -f .\flyway\docker-compose-flyway.yml up  --build --force-recreate`
