@@ -1,0 +1,97 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: sb-kafka-pub-service
+  namespace: sb-kafka
+spec:
+  selector:
+    label.service: sb-kafka-pub-k
+  ports:
+    - port: 8081
+      targetPort: sb-kaf-pub-svc
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sb-kafka-cons-service
+  namespace: sb-kafka
+spec:
+  selector:
+    label.service: sb-kafka-cons-k
+  ports:
+    - port: 8082
+      targetPort: sb-kaf-con-svc
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sb-kafka-hibernate-service
+  namespace: sb-kafka
+spec:
+  selector:
+    label.service: sb-kafka-hibernate-k
+  ports:
+    - port: 8083
+      targetPort: sb-kaf-hib-svc
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-s
+  namespace: sb-kafka
+  labels:
+    app: mysql-label-s
+spec:
+  selector:
+    label.service: mysql-s
+  ports:
+    - port: 3306
+      targetPort: mysql-s-svc
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-s
+  namespace: sb-kafka
+  labels:
+    app: redis-s
+spec:
+  selector:
+    label.service: redis-s
+  ports:
+    - port: 6379
+      targetPort: redis-s-svc
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafka-s
+  namespace: sb-kafka
+  labels:
+    app: kafka-s
+spec:
+  selector:
+    label.service: kafka-s
+  ports:
+    - port: 9092
+      targetPort: kafka-s-svc
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafka-controller-s
+  namespace: sb-kafka
+  labels:
+    app: kafka-controller-s
+spec:
+  selector:
+    label.service: kafka-controller-s
+  ports:
+    - port: 9093
+      targetPort: kafka-cont-svc

@@ -1,0 +1,1 @@
+start powershell.exe -NoExit -Command "docker compose -f jenkins/docker-compose-jenkins.yml up"

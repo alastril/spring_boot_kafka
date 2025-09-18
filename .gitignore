@@ -1,2 +1,5 @@
 /.idea/
 /target/
+/data/
+/repository/
+/jenkins/config

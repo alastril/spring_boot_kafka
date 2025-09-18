@@ -1,0 +1,67 @@
+name: spring_boot_kafka
+services:
+  sb_kafka_pub:
+    container_name: sb_kafka_pub
+    build:
+      context: ../
+      dockerfile: docker_scripts/Dockerfile
+    image: sb_kafka_pub:latest
+    ports:
+      - '8081:8081'
+      - '9191:9090'
+    environment:
+      SPRING_PROFILES_ACTIVE: Publisher, docker
+    healthcheck:
+      test: [ "CMD", "curl", "http://localhost:9090/actuator/health", "-i", "-X", "GET" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  sb_kafka_cons:
+    container_name: sb_kafka_cons
+    build:
+      context: ../
+      dockerfile: docker_scripts/Dockerfile
+    image: sb_kafka_cons:latest
+    ports:
+      - '8082:8082'
+      - '9292:9090'
+    environment:
+      SPRING_PROFILES_ACTIVE: Consumer, docker
+    healthcheck:
+      test: [ "CMD", "curl", "http://localhost:9090/actuator/health", "-i", "-X", "GET" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  sb_kafka_hibernate:
+    container_name: sb_kafka_hibernate
+    build:
+      context: ../
+      dockerfile: docker_scripts/Dockerfile
+    image: sb_kafka_hibernate:latest
+    ports:
+      - '8083:8083'
+      - '9393:9090'
+    environment:
+      SPRING_PROFILES_ACTIVE: Hibernate, docker
+    healthcheck:
+      test: [ "CMD", "curl", "http://localhost:9090/actuator/health", "-i", "-X", "GET" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  flyway:
+    image: sb_kafka_flyway:latest
+    build:
+      context: ../
+      dockerfile: docker_scripts/Dockerfile_flyway
+    container_name: sb_kafka_flyway
+    environment:
+      FLYWAY_URL: jdbc:mysql://host.docker.internal:3306/kafka_db?allowPublicKeyRetrieval=true
+      FLYWAY_USER: root
+      FLYWAY_PASSWORD: root
+      FLYWAY_BASELINE_ON_MIGRATE: true
+      FLYWAY_BASELINE_VERSION: 0
+      FLYWAY_CONNECT_RETRIES: 30
+    depends_on:
+      - sb_kafka_pub
+      - sb_kafka_cons
+      - sb_kafka_hibernate

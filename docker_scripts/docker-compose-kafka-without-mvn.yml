@@ -1,4 +1,4 @@
-version: '2'
+name: spring_boot_kafka
 services:
   redis:
     image: redis:latest

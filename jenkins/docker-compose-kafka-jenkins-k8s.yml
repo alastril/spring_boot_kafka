@@ -1,0 +1,144 @@
+name: spring_boot_kafka
+services:
+  redis:
+    image: redis:latest
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - /path/to/local/dаta:/root/redis
+      - /path/to/local/redis.conf:/usr/local/etc/redis/redis.conf
+    environment:
+      REDIS_PASSWORD: root
+      REDIS_PORT: 6379
+      REDIS_DATABASES: 16
+  kafka-controller:
+    image: confluentinc/cp-kafka:latest
+    container_name: kafka-controller
+    environment:
+      CLUSTER_ID: "your_unique_cluster_id1"
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: controller
+      KAFKA_LISTENERS: CONTROLLER_MAIN://:9091
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER_MAIN
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka-controller:9091
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    container_name: kafka-broker
+    ports:
+      - 9092:9092
+    environment:
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_NODE_ID: 2
+      CLUSTER_ID: "your_unique_cluster_id1"
+      KAFKA_PROCESS_ROLES: broker
+      KAFKA_LISTENERS: 'LISTENER_INTERNAL://:19092,HOST://:9092'
+      KAFKA_ADVERTISED_LISTENERS: 'LISTENER_INTERNAL://kafka-broker:19092, HOST://host.docker.internal:9092'
+      KAFKA_INTER_BROKER_LISTENER_NAME: LISTENER_INTERNAL
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER_BROKER
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER_BROKER:PLAINTEXT,LISTENER_INTERNAL:PLAINTEXT,HOST:PLAINTEXT
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka-controller:9091
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+    depends_on:
+      - kafka-controller
+  mysql:
+    image: mysql:latest
+    container_name: mysql
+    restart: always
+    environment:
+      #      TZ: Europe/Kiev
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: kafka_db
+      MYSQL_ROOT_HOST: '%'
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-time-zone=UTC
+    ports:
+      - '3306:3306'
+    volumes:
+      - mysql:/var/lib/mysql
+  sb_kafka_pub:
+    depends_on:
+      - mysql
+      - kafka
+    container_name: sb_kafka_pub
+    build:
+      context: ../
+      dockerfile: jenkins/Dockerfile-jenkins
+    image: sb_kafka_pub:latest
+    ports:
+      - '8081:8081'
+      - '9191:9090'
+    healthcheck:
+      test: [ "CMD", "curl", "http://host.docker.internal:9090/actuator/health", "-i", "-X", "GET" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  sb_kafka_cons:
+    depends_on:
+      mysql:
+        condition: service_started
+      kafka:
+        condition: service_started
+      sb_kafka_pub:
+        condition: service_started
+        #        condition: service_healthy
+        restart: true
+    container_name: sb_kafka_cons
+    build:
+      context: ../
+      dockerfile: jenkins/Dockerfile-jenkins
+    image: sb_kafka_cons:latest
+    ports:
+      - '8082:8082'
+      - '9292:9090'
+    healthcheck:
+      test: [ "CMD", "curl", "http://host.docker.internal:9090/actuator/health", "-i", "-X", "GET" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  sb_kafka_hibernate:
+    depends_on:
+      mysql:
+        condition: service_started
+      redis:
+        condition: service_started
+      sb_kafka_cons:
+        condition: service_started
+        #        condition: service_healthy
+        restart: true
+    container_name: sb_kafka_hibernate
+    build:
+      context: ../
+      dockerfile: jenkins/Dockerfile-jenkins
+    image: sb_kafka_hibernate:latest
+    ports:
+      - '8083:8083'
+      - '9393:9090'
+    environment:
+      SPRING_PROFILES_ACTIVE: Hibernate,k8s
+    healthcheck:
+      test: [ "CMD", "curl", "http://host.docker.internal:9090/actuator/health", "-i", "-X", "GET" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  flyway:
+    image: sb_kafka_flyway:latest
+    build:
+      context: ../
+      dockerfile: docker_scripts/Dockerfile_flyway
+    container_name: sb_kafka_flyway
+    environment:
+      FLYWAY_URL: jdbc:mysql://host.docker.internal:3306/kafka_db?allowPublicKeyRetrieval=true
+      FLYWAY_USER: root
+      FLYWAY_PASSWORD: root
+      FLYWAY_BASELINE_ON_MIGRATE: true
+      FLYWAY_BASELINE_VERSION: 0
+      FLYWAY_CONNECT_RETRIES: 30
+    depends_on:
+      - sb_kafka_pub
+      - sb_kafka_cons
+      - sb_kafka_hibernate
+volumes:
+  mysql:
+    driver: local
