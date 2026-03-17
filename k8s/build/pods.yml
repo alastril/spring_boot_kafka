@@ -176,10 +176,10 @@ spec:
   initContainers:
     - name: wait-mysql
       image: localhost:5000/sb_kafka_hibernate_k
-      command: [ "sh", "-c", "until nc -z mysql-s.sb-kafka.svc.cluster.local 3306; do echo Waiting for mysql; sleep 2; done;" ]
+      command: [ "sh", "-c", "until nc -z mysql-s.sb-kafka.svc.cluster.local 3306; do echo Waiting for mysql; sleep 3; done;" ]
     - name: wait-redis
       image: localhost:5000/sb_kafka_hibernate_k
-      command: [ "sh", "-c", "until nc -z redis-s.sb-kafka.svc.cluster.local 6379; do echo Waiting for redis; sleep 25; done;" ]
+      command: [ "sh", "-c", "until nc -z redis-s.sb-kafka.svc.cluster.local 6379; do echo Waiting for redis; sleep 3; done;" ]
 
 ---
 apiVersion: v1

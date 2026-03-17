@@ -55,3 +55,4 @@ useful commands:
 docker builder prune - clean docker build cache
 clean.sh - just clean k8s: pods, services, configmaps; clean **sb_boot_kafka** images from docker;
 kubectl logs <pod_name> -c <int_container_name> -n sb-kafka - debug init container
+kubectl logs sb-kafka-hibernate-pod -c wait-mysql -n sb-kafka
