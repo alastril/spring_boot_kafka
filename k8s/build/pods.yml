@@ -264,7 +264,7 @@ metadata:
 spec:
   containers:
     - name: kafka-controller-k
-      image: localhost:5000/kafka-controller_k
+      image: localhost:5000/kafka-controller_k:7.8.7
       imagePullPolicy: IfNotPresent
       ports:
         - containerPort: 9093
@@ -298,7 +298,7 @@ metadata:
 spec:
   containers:
     - name: kafka-k
-      image: localhost:5000/kafka-controller_k
+      image: localhost:5000/kafka-controller_k:7.8.7
       imagePullPolicy: IfNotPresent
       ports:
         - containerPort: 9092
@@ -328,7 +328,7 @@ spec:
           value: "0"
   initContainers:
     - name: wait-kafka-controller
-      image: localhost:5000/kafka-controller_k
+      image: localhost:5000/kafka-controller_k:7.8.7
       command: [ "sh", "-c", "until nc -z kafka-controller-s.sb-kafka.svc.cluster.local 9093; do echo Waiting for kafka; sleep 2; done;" ]
 
 ---
