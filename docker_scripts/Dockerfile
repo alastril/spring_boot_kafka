@@ -9,6 +9,7 @@ ENV TESTCONTAINERS_HOST_OVERRIDE=host.docker.internal
 #you can remove test part if it local successful passed
 RUN mvn -f /home/app/pom.xml clean compile -P docker assembly:single -s /root/.m2/mvn_settings_docker.xml
 
-FROM openjdk:19-jdk-alpine
+FROM openjdk:19-ea-jdk-alpine3.16
+RUN apk add --no-cache netcat-openbsd
 COPY --from=build /home/app/target/*-jar-with-dependencies.jar app.jar
 ENTRYPOINT ["java","-jar","app.jar"]

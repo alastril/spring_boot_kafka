@@ -2,7 +2,7 @@
     - [readme_k8s.md](../k8s/readme_k8s.md)
     - after installation k8s copy 'config'-file to jenkins folder(current folder where this readme-file) in project.
       Default path to config:
-      Windows: c:\Users\<User_name>\.kube\config
+      Windows: c:\Users\\<User_name>\\.kube\config
       Linux: /home/<User_name>/.kube/config
 2) Run command or just file [run_jenkins.sh](run_jenkins.sh):
     - `docker compose -f jenkins/docker-compose-jenkins.yml up`
@@ -11,7 +11,7 @@
    will ask password
 4) Go to container 'jenkins' and find in logs this row(after this row will be password) :
    `Please use the following password to proceed to installation:`
-5) Then use "Install suggested plugins". After complete, go to settings->plugins:
+5) Then use "Install suggested plugins"( if errors press "retry"-button). After complete, go to settings->plugins:
     - install plugin - Docker plugin, Pipeline: Stage View. Restart container
     - you also can install additional plugins if you need:
       1) Blue Ocean
@@ -32,7 +32,7 @@
    - another settings as default
    - click on created agent and copy ssh key and paste in
      [docker-compose-jenkins.yml](docker-compose-jenkins.yml) jenkins-agent->environment->JENKINS_SECRET
-   - stop jenkins containers, then run [_jenkins.sh](run_jenkins.sh)
+   - stop jenkins containers, then run [run_jenkins.sh](run_jenkins.sh)
 8) Go to jenkins settings->Tools and add jdk, maven:
    1) JDK name = "jdk19"
        - click automated installation -> get from *.zip/*.tar.gz
@@ -44,6 +44,8 @@
    - set name and choose Pipeline
    - add script from jenkins/Jenkinsfile [Jenkinsfile](Jenkinsfile)
    - now you can run pipeline, as result you will get deployed app to k8s
+
+[Dockerfile-jenkins](Dockerfile-jenkins) use in jenkins when build jar-file in pipeline
 
 useful commands:
 docker builder prune - clean docker build cache

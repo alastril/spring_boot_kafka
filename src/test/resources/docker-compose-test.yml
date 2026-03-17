@@ -12,7 +12,7 @@ services:
       - REDIS_PORT=6379
       - REDIS_DATABASES=16
   kafka-controller-1:
-    image: confluentinc/cp-kafka:latest
+    image: confluentinc/cp-kafka:7.8.7
     environment:
       CLUSTER_ID: "your_unique_cluster_id1"
       KAFKA_NODE_ID: 1
@@ -23,7 +23,7 @@ services:
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka-controller-1:9095
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
   kafka:
-    image: confluentinc/cp-kafka:latest
+    image: confluentinc/cp-kafka:7.8.7
     ports:
       - 9095:9095
     environment:
