@@ -2,7 +2,7 @@ Application for testing SpringBoot with kafka.
 
 1) install docker
 2) set settings_mvn.xml to your Maven (or set in Idea maven config and repo location).
-   after that run: `mvn clean compile install -P docker assembly:single`. 
+   after that run: `mvn clean package -DskipTests -P docker assembly:single`. 
    As a result you should have repository folder in project dir with libs( this repo use in k8s and jenkins image build)
 3) run help tools mysql, redis, kafka, .etc.:
     - `docker compose -f docker_scripts/docker-compose-tools.yml up --build --force-recreate`
@@ -38,6 +38,7 @@ docker compose -f docker-compose-jenkins.yml up --build --force-recreate
 https://download.oracle.com/java/19/archive/jdk-19.0.2_linux-x64_bin.tar.gz
 
 docker builder prune - clean docker build cache
+mvn clean install -DskipTests
 JPA generate Tables, flyway init data
 mklink /d mvn_repo\ c:\Users\Pasha\.m2\
 Run flyway manual:

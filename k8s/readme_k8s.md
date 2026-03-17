@@ -2,7 +2,7 @@ Install kubernetes on docker desktop(windows 11):
 1) Enable in docker settings "Expose daemon on tcp://localhost:2375 without TLS"
 2) Activate kubernetes on "docker settings": "Kubernetes" -> "Enable Kubernetes"
 3) Install Helm, run in CMD `winget install Helm.Helm`
-4) run in CMD `helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard/`
+4) run in CMD `helm repo add kubernetes-dashboard https://kubernetes-retired.github.io/dashboard/`
 5) run in CMD
    `helm upgrade --install kubernetes-dashboard kubernetes-dashboard/kubernetes-dashboard --create-namespace --namespace kubernetes-dashboard`
    if this command not work: try first this command - `helm repo update`, after that try again.
