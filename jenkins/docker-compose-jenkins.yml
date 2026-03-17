@@ -40,6 +40,16 @@ services:
       - ./config:/home/jenkins/.kube/config
     networks:
       - jenkins-network
+  registry:
+    image: registry:2
+    restart: always
+    ports:
+      - "5000:5000"
+    environment:
+      REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY: /data
+      REGISTRY_STORAGE_DELETE_ENABLED: "true"
+    volumes:
+      - /register_data:/data
 networks:
   jenkins-network:
 volumes:
