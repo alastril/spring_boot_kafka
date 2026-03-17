@@ -40,7 +40,7 @@ services:
       - sonar_db:/var/lib/postgresql
       - sonar_db_data:/var/lib/postgresql/data
   kafka-controller-1:
-    image: confluentinc/cp-kafka:latest
+    image: confluentinc/cp-kafka:7.8.7
     container_name: kafka-controller-1
     environment:
       CLUSTER_ID: "your_unique_cluster_id1"
@@ -52,7 +52,7 @@ services:
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka-controller-1:9093
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
   kafka:
-    image: confluentinc/cp-kafka:latest
+    image: confluentinc/cp-kafka:7.8.7
     container_name: kafka-broker-1
     ports:
       - 9092:9092

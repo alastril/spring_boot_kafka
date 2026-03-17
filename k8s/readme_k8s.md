@@ -2,7 +2,7 @@ Install kubernetes on docker desktop(windows 11):
 1) Enable in docker settings "Expose daemon on tcp://localhost:2375 without TLS"
 2) Activate kubernetes on "docker settings": "Kubernetes" -> "Enable Kubernetes"
 3) Install Helm, run in CMD `winget install Helm.Helm`
-4) run in CMD `helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard/`
+4) run in CMD `helm repo add kubernetes-dashboard https://kubernetes-retired.github.io/dashboard/`
 5) run in CMD
    `helm upgrade --install kubernetes-dashboard kubernetes-dashboard/kubernetes-dashboard --create-namespace --namespace kubernetes-dashboard`
    if this command not work: try first this command - `helm repo update`, after that try again.
@@ -22,7 +22,7 @@ Install kubernetes on docker desktop(windows 11):
 13) Run in CMD: `docker compose -f k8s/docker-compose-kafka-k8s.yml build --build --force-recreate`
 14) do manual 15, 16, 17 cases or just run [tag_push_apply.sh](tag_push_apply.sh)
 15) add tag to registry [tag_push_apply.sh](tag_push_apply.sh):
-    - `docker image tag confluentinc/cp-kafka:latest localhost:5000/kafka-controller_k:latest`
+    - `docker image tag confluentinc/cp-kafka:latest localhost:5000/kafka-controller_k:7.8.7`
     - `docker image tag redis:latest localhost:5000/redis_k:latest`
     - `docker image tag mysql:latest localhost:5000/mysql_k:latest`
     - `docker image tag sb_kafka_pub:latest localhost:5000/sb_kafka_pub_k:latest`
@@ -30,7 +30,7 @@ Install kubernetes on docker desktop(windows 11):
     - `docker image tag sb_kafka_hibernate:latest localhost:5000/sb_kafka_hibernate_k:latest`
     - `docker image tag sb_kafka_flyway:latest localhost:5000/sb_kafka_flyway_k:latest`
 16) push image by tag to registry [tag_push_apply.sh](tag_push_apply.sh):
-    - `docker image push localhost:5000/kafka-controller_k:latest`
+    - `docker image push localhost:5000/kafka-controller_k:7.8.7`
     - `docker image push localhost:5000/redis_k:latest`
     - `docker image push localhost:5000/mysql_k:latest`
     - `docker image push localhost:5000/sb_kafka_pub_k:latest`
@@ -55,3 +55,4 @@ useful commands:
 docker builder prune - clean docker build cache
 clean.sh - just clean k8s: pods, services, configmaps; clean **sb_boot_kafka** images from docker;
 kubectl logs <pod_name> -c <int_container_name> -n sb-kafka - debug init container
+kubectl logs sb-kafka-hibernate-pod -c wait-mysql -n sb-kafka
